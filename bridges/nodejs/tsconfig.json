@@ -5,8 +5,10 @@
     "outDir": "./dist/bin",
     "baseUrl": ".",
     "paths": {
-      "@bridge/*": ["./src/*"]
-    }
+      "@bridge/*": ["./src/*"],
+      "@sdk/*": ["./src/sdk/*"]
+    },
+    "declaration": true
   },
   "ts-node": {
     "swc": true,
