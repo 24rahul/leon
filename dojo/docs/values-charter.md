@@ -1,68 +1,74 @@
-# Dojo Values Charter (Draft v1)
+# Dojo Values Charter (Draft v2)
 
-*This charter is a living document. It is explicitly designed to be disrupted and reshaped by the community it serves.*
+*This charter is a living document. The first major revision happens after the first external community cohort joins. We commit to never treating any version as final.*
 
 ---
 
-## Core Values
+## Values
 
-### 1. Equity Over Excellence
-We do not optimize for the "best" model. We optimize for the model that serves the most people fairly. A model that scores 95% accuracy but fails systematically for marginalized populations is worse than one that scores 90% and fails uniformly.
+### 1. Coaching Over Scoring
+Evaluation without improvement is gatekeeping. Every assessment must come paired with actionable remediation — automated plans, curated resources, or expert connections. If we can't suggest a path forward, we say so explicitly rather than just reporting a score.
 
-### 2. Coaching Over Scoring
-Evaluation without improvement is gatekeeping. Every assessment must come with actionable paths forward — tools, data, mentorship, compute access.
+### 2. Care Phenotypes Over Demographics
+Demographic labels (race, sex, ethnicity) are social constructs, imperfectly collected, and often mask real disparities. We use care phenotypes — patient subgroups defined by treatment patterns, adjusted for illness severity — as the primary fairness audit lens. Demographics remain available for comparison, but they are not sufficient.
 
-### 3. Community Ownership
-No single institution, company, or individual owns Dojo. Governance decisions are made by the community. This means accepting messiness, slowness, and disagreement as features, not bugs.
+### 3. Honest Uncertainty
+Agents report confidence levels and known limitations. When an agent can't contribute, it abstains rather than generating spurious findings. When findings are ambiguous, we report the ambiguity, not a false consensus. When a small sample size makes results suggestive rather than conclusive, we say so.
 
 ### 4. Co-Design, Not Consultation
-Patient advocates, community organizations, indigenous communities, and Global South researchers are co-workers with equal standing — not guests of honor, not token representatives, not people we ask to "comment on our ideas."
+Patient advocates, community organizations, and Global South researchers have equal standing in governance — not as guests of honor or token representatives. Equal standing means: they propose ideas (not just comment on ours), they vote on decisions (not just advise), and they can say no.
 
 ### 5. Transparency Over Polish
-We show the process, including the chaos. Polished outputs obscure the real work and make it harder for others to replicate. Our grant-writing sessions, our disagreements, our failures — all visible.
+We show the process, including disagreements, failures, and dead ends. Our grant-writing sessions, governance debates, and agent validation failures are visible. This serves two purposes: it's honest, and it's pedagogically useful for others trying to replicate this work.
 
-### 6. Environmental Responsibility
-AI has material costs — energy, water, hardware, e-waste. We account for the full lifecycle, not just compute carbon. We actively seek to minimize environmental harm.
+### 6. Values Before Solutions
+Before building anything, we ask: what values are driving this? Whose values are they? Whose values are missing? Solutions built on unexamined values reproduce the systems they claim to improve. We use Value Sensitive Design methodology to surface and negotiate value tensions.
 
-### 7. Values Before Solutions
-We reflect on what values drive our work before building solutions. Solutions built on unexamined values reproduce the systems they claim to improve.
-
-### 8. Pluralism Beyond Western Frames
-Our understanding of fairness, ethics, and community is shaped by Western academic traditions. We actively seek and center perspectives from indigenous communities, the Global South, and non-academic traditions — not to absorb them, but to be challenged by them.
+### 7. Reflexive Accountability
+Dojo's own agents are subject to the same evaluation and validation as submitted models. If an agent fails validation, it is suspended and the failure is published. We do not exempt ourselves from our own standards.
 
 ---
 
-## Incentive Structures
+## Incentive Design
 
 ### What We Reward
-- Sharing tools, data, and expertise openly
-- Identifying and disclosing failures (your own and others')
-- Bringing in new perspectives and stakeholders
-- Improving others' models, not just your own
-- Environmental efficiency in model development
+- Contributing remediation resources (debiased datasets, augmentation pipelines, training recipes) with empirical evidence of effectiveness
+- Identifying and disclosing failures — in your own models, in Dojo's agents, in the governance process
+- Completing the full evaluate→coach→re-evaluate loop (not just submitting once)
+- Expert consultations that lead to documented improvements
+- Bringing in perspectives from underrepresented stakeholder groups
 
-### What We Discourage
-- Hoarding expertise or tools for competitive advantage
-- Performative inclusion (inviting stakeholders for optics)
-- Optimizing for benchmarks over real-world impact
-- Building solutions without value reflection
-- Ignoring environmental costs
+### What We Don't Reward
+- Publishing Dojo scores as competitive rankings (Dojo is not a leaderboard)
+- Submitting models without engagement with coaching outputs
+- Hoarding expertise, data, or tools for competitive advantage
 
 ---
 
-## How We Handle Disagreement
+## Decision-Making
 
-1. Surface the value tension explicitly
-2. Identify whose perspectives are missing from the discussion
-3. Seek contextual resolution (the answer is always "it depends")
-4. Document the tension and the reasoning — even if unresolved
-5. Revisit as the community evolves
+Decisions are made by the body responsible (see governance structure in project-plan.md). When stakeholders disagree:
+
+1. The value tension is named explicitly — what values conflict, who holds which position
+2. We identify whose perspectives are absent and invite them
+3. We seek contextual resolution (the answer is usually "it depends on deployment context")
+4. The resolution AND the dissenting views are documented
+5. Resolutions are revisitable when new stakeholders or evidence arrive
 
 ---
 
-## Commitment to Disruption
+## What This Charter Doesn't Cover
 
-This charter will be revised. The first major revision will happen after the first cohort of external community members joins Dojo. We commit to:
-- Soliciting governance proposals from new members within their first 30 days
-- Holding a community vote on charter revisions at least annually
-- Never treating any version of this charter as final
+We are honest about scope limitations:
+- This charter governs Dojo's internal operations. It cannot govern how submitters use their results externally.
+- Stating values is easier than living them. We measure compliance through annual community surveys and publish the results, including where we fall short.
+- Community governance is slow. We will sometimes move slower than a top-down structure would. We accept this as a feature.
+
+---
+
+## Revision Process
+
+- First revision: after the first external community cohort joins (target: Phase 2, early 2027)
+- Ongoing: any community member can propose a charter amendment at any time
+- Amendments require 2/3 supermajority of the Community Assembly
+- The founding team (MIT group) has no veto power over charter amendments after Phase 1

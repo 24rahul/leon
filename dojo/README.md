@@ -1,105 +1,39 @@
-# Dojo: A Community Gym for Health AI
+# Dojo: Evaluation + Coaching for Health AI
 
-**A community of agents, models, and humans — stress-testing, red-teaming, and training each other to build better, fairer health AI.**
+A platform where health AI models are evaluated across multiple dimensions and then coached to improve — not just scored and abandoned.
 
-Dojo is not just an evaluation platform. It's a gym where AI models, autonomous agents, and humans come together to identify weaknesses, share tools, and collectively improve. Think of it as a dojo where every participant — whether a clinical decision support model, a bias detection agent, or a domain expert — gets coached, challenged, and made stronger.
+## The Problem
 
----
+Health AI evaluation today is one-shot (submit, score, leave), decontextualized (tested in isolation from deployment), and demographically naive (auditing by race/sex gives false confidence about fairness). When failures are found, the path to fixing them is unclear.
 
-## Why Dojo?
+## What Dojo Does Differently
 
-The current AI evaluation landscape is fragmented and one-directional: you submit a model, it gets scored, and you're done. Dojo flips this by:
+**1. Care phenotypes instead of demographics.** We generate patient subgroups based on treatment patterns (monitoring frequency, intervention timing) adjusted for illness severity. Our preliminary work shows these reveal model performance disparities invisible to standard race/sex auditing.
 
-1. **Going beyond evaluation** — We don't just score; we coach. After identifying weaknesses, Dojo provides tools, training data, and community support to improve.
-2. **Community governance** — Not dictated by MIT, Google, or any single institution. Designed by the community, for the community.
-3. **Centering values** — Using frameworks like Value Sensitive Design and LTARC to ensure the process itself embodies equity, sustainability, and inclusivity.
-4. **Addressing the full lifecycle** — From data collection to model deployment to environmental impact to societal consequences.
+**2. Coaching, not just scoring.** Every evaluation finding comes with an automated remediation plan, curated resources from a community library, and a structured expert match. The success metric is model improvement on re-evaluation, not the initial score.
 
----
+## Phase 1 Agents
 
-## Architecture Overview
+- **Shortcut Detective** — Identifies spurious correlations in medical imaging models (e.g., chest tube → pneumonia) using feature attribution, subgroup ablation, and counterfactual generation.
+- **Care Phenotype Agent** — Generates treatment-pattern-based patient subgroups for fairness auditing as an alternative to demographic labels.
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    DOJO PLATFORM                        │
-│                                                         │
-│  ┌─────────────┐  ┌──────────────┐  ┌───────────────┐  │
-│  │  SUBMISSION  │  │  EVALUATION  │  │   TRAINING    │  │
-│  │   PORTAL     │→│   ARENA      │→│   GYMNASIUM   │  │
-│  │             │  │              │  │               │  │
-│  │ Models      │  │ Red-teaming  │  │ Coaching      │  │
-│  │ Agents      │  │ Stress tests │  │ Fine-tuning   │  │
-│  │ Datasets    │  │ Bias audits  │  │ Data sharing  │  │
-│  └─────────────┘  └──────────────┘  └───────────────┘  │
-│                                                         │
-│  ┌──────────────────────────────────────────────────┐   │
-│  │              AGENT ECOSYSTEM                      │   │
-│  │                                                    │   │
-│  │  Shortcut    Care        Environmental   Value     │   │
-│  │  Detective   Phenotype   Impact          Reflection│   │
-│  │  Agent       Agent       Agent           Agent     │   │
-│  │                                                    │   │
-│  │  Contextual  Persuasion  Report Card     Provenance│   │
-│  │  Modeling    Analysis    Generator       Tracker   │   │
-│  │  Agent       Agent       Agent           Agent     │   │
-│  └──────────────────────────────────────────────────┘   │
-│                                                         │
-│  ┌──────────────────────────────────────────────────┐   │
-│  │           COMMUNITY GOVERNANCE LAYER              │   │
-│  │  Values Charter │ LTARC Principles │ Six Tools    │   │
-│  └──────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────┘
-```
+## Status
 
----
+Phase 0: Grant writing and validation of existing tools. Target NIH submission: end of May 2026.
 
-## Core Components
+## Documentation
 
-### 1. Submission Portal
-Where external teams bring their models, agents, and datasets for evaluation and improvement.
+- [Project Plan](./docs/project-plan.md) — Full technical plan, architecture, timeline, risks
+- [Grant Specific Aims](./docs/grant-specific-aims.md) — NIH proposal draft (v4)
+- [Use Cases](./docs/use-cases.md) — Three scenarios including failure modes
+- [Values Charter](./docs/values-charter.md) — Community values and governance principles
 
-### 2. Evaluation Arena
-Red-teaming and stress-testing using the agent ecosystem — checking for bias, shortcuts, environmental cost, persuasion risks, and contextual failures.
+## Team
 
-### 3. Training Gymnasium
-The differentiator. After evaluation, Dojo provides actionable coaching: fine-tuning guidance, debiased training data, community mentorship, and tool access.
-
-### 4. Agent Ecosystem
-Modular, composable agents that each handle a specific dimension of evaluation and training. See `agents/` for details.
-
-### 5. Community Governance Layer
-Principles, values, and processes that guide how Dojo operates — designed to be disrupted and evolved by the community itself.
-
----
-
-## Quick Start
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for how to get involved.
-
-See [docs/project-plan.md](./docs/project-plan.md) for the full project plan and roadmap.
-
----
+Distributed across MIT, Google, University of Pittsburgh, Vanderbilt, University of Geneva, Johns Hopkins, University Health Network (Canada), and collaborators in South Korea, Japan, Germany, France, and Colombia.
 
 ## Key Frameworks
 
 - **LTARC**: Local, Task-specific, Agile, Reflexive, Community-powered evaluation
-- **Value Sensitive Design**: Centering stakeholder values from the beginning
-- **Six Tools**: Mirror, Flashlight, Microscope, Paintbrush, Podium, Slingshot
-- **AI Plasticity**: Growing through the collective experience of AI failures
-
----
-
-## Timeline
-
-| Phase | Target | Focus |
-|-------|--------|-------|
-| Phase 0 | Now - April 2026 | Project planning, grant writing, values charter |
-| Phase 1 | May - Aug 2026 | Core platform + 4 flagship agents |
-| Phase 2 | Sep - Dec 2026 | MIT fall course premiere, community onboarding |
-| Phase 3 | 2027 | Scale, partnerships, Hugging Face integration |
-
----
-
-## License
-
-TBD — will be determined by community governance process.
+- **Value Sensitive Design**: Centering stakeholder values from the design phase
+- **AI Plasticity**: Hypothesis that structured community engagement with AI failures leads to measurable shifts in participant practices (research question, not assumption)

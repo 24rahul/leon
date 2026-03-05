@@ -1,306 +1,496 @@
-# Dojo Project Plan
+# Dojo Project Plan (v2 — Scoped and Honest)
 
 ## 1. What We're Building
 
-Dojo is a **community gym for health AI** — a platform where AI models, agents, and humans red-team, stress-test, and train each other. It goes beyond evaluation: after identifying weaknesses, Dojo provides the tools, data, and community support to actually improve.
+Dojo is a platform for health AI evaluation that does two things current platforms don't:
 
-The metaphor is literal: a gym has machines (evaluation tools), weights (training resources), coaches (agents + humans), and members (the community). Everyone who enters gets stronger.
+1. **Uses care phenotypes instead of (or alongside) demographic labels for fairness auditing** — because demographic labels are social constructs that can mask real disparities in how models perform across patients who received systematically different care.
+2. **Pairs every evaluation finding with a concrete improvement pathway** — automated remediation plans, curated resources, and structured expert matching — because evaluation without remediation is just gatekeeping.
 
----
-
-## 2. Problem Statement
-
-Current AI evaluation is:
-- **One-shot**: You submit, you get a score, you leave
-- **Decontextualized**: Models are tested in isolation from their deployment context
-- **Demographically naive**: Uses race/ethnicity labels that are social constructs and imperfectly collected, giving false confidence about fairness
-- **Siloed**: Evaluation tools don't talk to each other
-- **Gatekept**: Only elite institutions have the expertise to build and evaluate well
-- **Environmentally blind**: No systematic accounting of computational and environmental costs
+That's it. Two core innovations. Everything else is future work.
 
 ---
 
-## 3. Core Design Principles
+## 2. What We're NOT Building (Yet)
 
-### 3.1 LTARC Framework
-- **L**ocal: Evaluations are contextualized to deployment settings
-- **T**ask-specific: No one-size-fits-all benchmarks
-- **A**gile: Adapts as models and contexts evolve
-- **R**eflexive: The evaluation system evaluates itself
-- **C**ommunity-powered: Governed by and for the community
+To build this properly, we're explicitly deferring:
+- Environmental impact assessment (Phase 2 — needs its own methodology work)
+- Persuasion/believability analysis (Phase 2)
+- Full provenance tracking (Phase 2)
+- AI report cards with societal impact dimensions (Phase 2)
+- Agent marketplace (Phase 3)
+- Hugging Face integration (Phase 3)
 
-### 3.2 Value Sensitive Design
-Embed stakeholder values (patients, clinicians, communities, researchers) from the design phase — not as an afterthought. Concretely:
-- Identify direct, indirect, and excluded stakeholders
-- Surface value tensions explicitly (e.g., accuracy vs. equity vs. sustainability)
-- Make value trade-offs transparent and community-governed
-
-### 3.3 AI Plasticity
-The community grows through collectively experiencing and learning from AI failures. The process itself is the product — not just the output.
+These are real and important. But trying to build them all at once means building none of them well.
 
 ---
 
-## 4. Agent Ecosystem
+## 3. Technical Architecture
 
-Each agent is a "machine" or "weight" in the dojo gym. They are modular, composable, and independently validatable.
-
-### 4.1 Flagship Agents (Phase 1)
-
-#### Shortcut Detective Agent
-- **Purpose**: Identify whether medical computer vision models use features unrelated to disease (e.g., race markers, imaging artifacts) for classification
-- **Input**: Model + dataset + task description
-- **Output**: Shortcut report with identified spurious correlations, affected subgroups, and remediation suggestions
-- **Status**: Existing tool — needs agent wrapper and API
-
-#### Care Phenotype Agent
-- **Purpose**: Generate care phenotypes — subgroups defined by treatment patterns rather than demographic labels — as alternative fairness audit categories
-- **Input**: Clinical dataset with treatment variables + illness severity measures
-- **Output**: Care phenotype clusters, fairness audit using phenotypes vs. demographics, comparison of bias visibility
-- **Insight**: Demographic labels can mask algorithmic bias; care phenotypes (e.g., frequency of turning/monitoring adjusted for severity) reveal hidden disparities
-- **Status**: Paper in review — needs productionization
-
-#### Environmental Impact Agent
-- **Purpose**: Calculate and report the full environmental footprint of an AI model's lifecycle
-- **Scope**: Not just carbon/compute — includes hardware sourcing, water usage, energy sources, e-waste, supply chain ethics
-- **Input**: Model architecture, training logs, infrastructure specs
-- **Output**: Environmental report card with actionable reduction recommendations
-- **Status**: New development — Rawan's domain
-
-#### Value Reflection Agent
-- **Purpose**: Guide teams through structured value reflection before, during, and after model development
-- **Input**: Project description, team composition, deployment context
-- **Output**: Values audit report, tension map, recommended governance structures
-- **Approach**: Non-technical agent — focuses on process, not code
-- **Status**: New development — draws on Value Sensitive Design literature
-
-### 4.2 Phase 2 Agents
-
-#### AI Report Card Generator
-- **Purpose**: Comprehensive societal impact assessment
-- **Dimensions**: Environmental impact, job displacement, entry-level opportunity erosion, healthcare access effects, economic concentration
-- **Uses the Six Tools framework**:
-  - Mirror: What does this model reflect about us?
-  - Flashlight: What does it illuminate that we couldn't see?
-  - Microscope: What details does it reveal under scrutiny?
-  - Paintbrush: What narrative does it paint?
-  - Podium: Whose voice does it amplify?
-  - Slingshot: What power dynamics does it disrupt?
-
-#### Contextual Modeling Agent
-- **Purpose**: Assess context rot — how well a model adapts to contextual variation in real-world deployment
-- **Key insight**: Models cannot simulate all deployment contexts (unlike board games). Beyond a threshold, contextual modeling requires human input — but from "evolved" humans with new AI-era agency
-- **Input**: Model + deployment scenario descriptions
-- **Output**: Context sensitivity analysis, failure mode catalog, human oversight recommendations
-
-#### Persuasion Analysis Agent
-- **Purpose**: Evaluate the believability and persuasive capacity of model outputs — and identify who is most susceptible
-- **Motivation**: The Mt. Sinai/Nature study showed ChatGPT triaging is poor, but accuracy alone misses the dimension of how convincingly wrong answers are presented
-- **Input**: Model outputs + task context
-- **Output**: Persuasion risk assessment, vulnerable population analysis
-
-#### Provenance Tracker Agent
-- **Purpose**: Track the full research provenance trail from data collection through model deployment
-- **Design for agentic research workflows**: Integrates at the beginning of research, not just at final model submission
-- **Input**: Research workflow logs, agent interaction traces
-- **Output**: Complete provenance graph, decision audit trail
-
----
-
-## 5. Platform Architecture
-
-### 5.1 Technical Stack (Proposed)
+### 3.1 System Overview
 
 ```
-Frontend:        Web dashboard for submission, results, community
-Backend API:     FastAPI (Python) — orchestrates agent execution
-Agent Runtime:   LangGraph or similar agent orchestration framework
-Data Layer:      PostgreSQL + object storage for models/datasets
-Auth:            OAuth2 with institutional and individual accounts
-Deployment:      Containerized (Docker/K8s), cloud-agnostic
+┌──────────────────────────────────────────────────────────┐
+│                      DOJO PLATFORM                       │
+│                                                          │
+│  ┌─────────────┐    ┌──────────────────────────────────┐ │
+│  │  Submission  │    │       Evaluation Agents          │ │
+│  │  Portal      │───→│                                  │ │
+│  │             │    │  ┌────────────┐ ┌──────────────┐ │ │
+│  │ Model/API   │    │  │ Shortcut   │ │ Care         │ │ │
+│  │ Dataset     │    │  │ Detective  │ │ Phenotype    │ │ │
+│  │ Context     │    │  └─────┬──────┘ └──────┬───────┘ │ │
+│  └─────────────┘    └────────┼───────────────┼─────────┘ │
+│                              │               │           │
+│                    ┌─────────▼───────────────▼─────────┐ │
+│                    │      Dojo Report                   │ │
+│                    │  Findings + Remediation Plans      │ │
+│                    └─────────┬─────────────────────────┘ │
+│                              │                           │
+│                    ┌─────────▼─────────────────────────┐ │
+│                    │      Coaching Layer                │ │
+│                    │                                    │ │
+│                    │  Remediation  │ Resource  │ Expert │ │
+│                    │  Plans        │ Library   │ Match  │ │
+│                    └──────────────────────────────────-─┘ │
+│                                                          │
+│  ┌──────────────────────────────────────────────────────┐ │
+│  │  Data Governance: Sandboxed execution, no weight     │ │
+│  │  extraction, HIPAA-compliant data handling, DUAs     │ │
+│  └──────────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────┘
 ```
 
-### 5.2 Submission Flow
+### 3.2 Technical Stack
+
+| Component | Choice | Rationale |
+|-----------|--------|-----------|
+| Backend API | FastAPI (Python) | Team expertise, ML ecosystem compatibility |
+| Agent orchestration | LangGraph | Composable agent workflows, state management |
+| Database | PostgreSQL | Structured metadata, audit logs |
+| Object storage | S3-compatible (MinIO for self-hosted) | Model artifacts, datasets |
+| Compute | Sandboxed containers (Docker) | Security isolation for submitted models |
+| Frontend | React + Vite | Standard, accessible |
+| Auth | OAuth2 (institutional + individual) | Multi-tenant, role-based |
+| Deployment | Docker Compose (dev), Kubernetes (prod) | Scale when needed, not before |
+
+### 3.3 Data Governance
+
+This is non-negotiable. Health data flows through this system.
+
+**Model submissions:**
+- Models execute in sandboxed containers with no network access
+- Model weights are never extractable by Dojo agents — inference only
+- Evaluation results are stored; model artifacts are deleted after evaluation unless the submitter opts into the resource library
+- All agent-model interactions are logged for audit
+
+**Data submissions:**
+- Clinical data must be de-identified per HIPAA Safe Harbor or Expert Determination
+- Data use agreements (DUAs) are required before any data enters the system
+- Data is encrypted at rest and in transit
+- Data retention: configurable by submitter, default 90 days post-evaluation
+- No data is used for Dojo's own model training without explicit written consent
+
+**Intellectual property:**
+- Submitters retain all IP
+- Evaluation results belong to the submitter
+- Remediation plans generated by Dojo are open (CC-BY)
+- Submitters choose whether their results are public or private
+
+### 3.4 Submission Flow (Detailed)
 
 ```
-1. User submits model/agent/dataset via portal
-   ├── Metadata: task, deployment context, target population
-   ├── Model artifacts or API endpoint
-   └── Opt-in: which evaluations to run
+1. INTAKE
+   ├── Submitter creates account (OAuth2)
+   ├── Submits model via one of:
+   │   ├── Docker container with standardized inference API
+   │   ├── API endpoint (for hosted models)
+   │   └── Model weights + inference script (uploaded, sandboxed)
+   ├── Submits evaluation dataset (or uses Dojo-provided benchmarks)
+   ├── Fills deployment context form:
+   │   ├── Clinical setting (ICU, ED, primary care, etc.)
+   │   ├── Target population description
+   │   ├── Intended users (clinicians, patients, administrators)
+   │   └── Known limitations (self-reported)
+   └── Selects evaluation agents to run
 
-2. Evaluation Arena runs selected agents
-   ├── Shortcut Detective → shortcut report
-   ├── Care Phenotype Agent → fairness audit
-   ├── Environmental Impact → footprint report
-   ├── Persuasion Analysis → risk assessment
-   └── ... (composable, user-selected)
+2. EVALUATION (automated, sandboxed)
+   ├── Shortcut Detective runs feature attribution pipeline
+   ├── Care Phenotype Agent runs fairness audit
+   ├── Each agent produces structured JSON report
+   └── Reports aggregated into Dojo Report
 
-3. Results aggregated into Dojo Report Card
-   ├── Strengths identified
-   ├── Weaknesses identified
-   └── Actionable improvement paths
+3. COACHING (semi-automated)
+   ├── Automated remediation plans generated from findings
+   ├── Relevant resources surfaced from curated library
+   ├── Expert match suggested (if applicable)
+   └── Submitter reviews report + coaching materials
 
-4. Training Gymnasium activated
-   ├── Recommended fine-tuning strategies
-   ├── Debiased training data offered
-   ├── Community mentorship matched
-   └── Tool access granted (compute, weights, frameworks)
-
-5. Re-evaluation cycle
-   └── Improved model re-enters the arena
+4. RE-EVALUATION (optional)
+   ├── Submitter makes improvements
+   ├── Resubmits for targeted re-evaluation
+   └── Delta report: what improved, what didn't, what regressed
 ```
-
-### 5.3 Agent Validation
-
-Every agent in the gym must itself be validated. Mechanisms:
-- **Cross-validation**: Agents evaluate each other
-- **Community review**: Humans audit agent outputs
-- **Adversarial testing**: Deliberately adversarial submissions to test agent robustness
-- **Version tracking**: All agent versions and outputs are logged
-- **Reflexive reporting**: Each agent reports its own confidence and limitations
 
 ---
 
-## 6. Community Governance
+## 4. Agent Specifications
 
-### 6.1 Guiding Principles (Draft — Open to Disruption)
+### 4.1 Shortcut Detective Agent
 
-1. **No single institution owns Dojo** — governance belongs to the community
-2. **Participants are co-workers, not guests of honor** — patient advocates, community organizations, and Global South researchers have equal standing, not tokenistic representation
-3. **The governance itself is a living document** — it evolves as the community evolves
-4. **Transparency over polish** — we show the chaos, not just the results
-5. **Ideas welcome from everyone** — don't just ask for comments on our ideas; create space for others' ideas
-6. **Values before solutions** — reflect on what values drive our work before building
+**What exists:** The team has existing shortcut detection software for medical computer vision. This needs to be wrapped in an agent interface with standardized I/O.
 
-### 6.2 Governance Structure (Initial Proposal)
+**Pipeline:**
 
 ```
-Community Assembly (all participants)
-    │
-    ├── Values Council
-    │   └── Maintains values charter, resolves value tensions
-    │
-    ├── Technical Steering Committee
-    │   └── Agent review, platform architecture, standards
-    │
-    ├── Community Partnerships
-    │   └── Patient advocacy, indigenous communities, Global South orgs
-    │
-    └── Environmental & Ethics Board
-        └── Sustainability oversight, societal impact assessment
+Input: Model + Dataset + Task Description
+                │
+    ┌───────────▼──────────────┐
+    │ Stage 1: Feature         │
+    │ Attribution Mapping      │
+    │ - Integrated gradients   │
+    │ - GradCAM                │
+    │ - SHAP (for tabular)     │
+    └───────────┬──────────────┘
+                │
+    ┌───────────▼──────────────┐
+    │ Stage 2: Spurious        │
+    │ Correlation Testing      │
+    │ - Subgroup ablation      │
+    │ - Feature masking        │
+    │ - Distribution shift     │
+    │   analysis               │
+    └───────────┬──────────────┘
+                │
+    ┌───────────▼──────────────┐
+    │ Stage 3: Causal          │
+    │ Confirmation             │
+    │ - Counterfactual         │
+    │   generation (diffusion) │
+    │ - Prediction shift       │
+    │   measurement            │
+    └───────────┬──────────────┘
+                │
+Output: Structured Shortcut Report
+  ├── Identified shortcuts (ranked by impact)
+  ├── Affected subgroups
+  ├── Estimated performance impact per shortcut
+  ├── Confidence level per finding
+  └── Remediation recommendations
+      ├── Data augmentation strategies
+      ├── Feature masking approaches
+      └── Architecture modifications
 ```
 
-### 6.3 Stakeholder Inclusion
+**Validation plan:** Benchmark against 12 known shortcut cases from literature (Degrave et al. COVID/chest X-ray, Winkler et al. dermatology, etc.). Target: >85% detection sensitivity, <15% false positive rate.
 
-- **Patient advocacy groups** (Kathy, Hector, others) — as co-designers, not reviewers
-- **Community organizations** — for governance co-design
-- **Indigenous communities** — pluralism perspectives, tradition preservation
-- **Global South researchers** — equal footing in innovation
-- **Industry partners** — Google Health (Andrew Seligan / MedGemma), others
-- **Hugging Face** — potential integration for model/data sharing infrastructure
+**Known limitations (we state these upfront):**
+- Counterfactual generation quality varies by imaging domain
+- Cannot detect shortcuts in black-box API-only submissions (no gradient access)
+- Feature attribution methods can disagree — we report disagreement, not just consensus
 
----
+### 4.2 Care Phenotype Agent
 
-## 7. Relationship to Existing Work
+**What exists:** Methodology from paper in review. Demonstrated on MIMIC-IV ICU data showing care phenotypes reveal performance disparities invisible to race/sex auditing.
 
-### 7.1 What We Already Have
-- Shortcut detection software (medical computer vision)
-- Care phenotypes methodology (paper in review)
-- Mortality prediction model with bias analysis across care phenotypes
-- LTARC evaluation framework (paper forthcoming)
-- AI Report Card framework (six tools)
-- AI Plasticity concept (submitted to BMJ)
-- Mandate for Healing (Project 2025 for healthcare)
+**Pipeline:**
 
-### 7.2 What Hugging Face Has
-- Model hub, dataset hub — infrastructure for sharing
-- Community around model evaluation
-- **Gap**: Not deeply connected as a community; not investing in mutual improvement
-- **Dojo adds**: The coaching/training loop, community governance, value-centered evaluation
+```
+Input: Clinical Dataset + Illness Severity Measures + Model to Audit
+                │
+    ┌───────────▼──────────────┐
+    │ Stage 1: Care Process    │
+    │ Variable Extraction      │
+    │ - Monitoring frequency   │
+    │ - Intervention timing    │
+    │ - Medication patterns    │
+    │ - Documentation frequency│
+    │ - Turning/repositioning  │
+    └───────────┬──────────────┘
+                │
+    ┌───────────▼──────────────┐
+    │ Stage 2: Severity        │
+    │ Adjustment               │
+    │ - Propensity score       │
+    │   weighting              │
+    │ - Confounders: APACHE-IV │
+    │   (ICU), Charlson        │
+    │   (general), weight, BMI │
+    └───────────┬──────────────┘
+                │
+    ┌───────────▼──────────────┐
+    │ Stage 3: Phenotype       │
+    │ Clustering               │
+    │ - Gaussian mixture       │
+    │   models                 │
+    │ - Optimal k via BIC      │
+    │ - Clinical               │
+    │   interpretability       │
+    │   scoring                │
+    └───────────┬──────────────┘
+                │
+    ┌───────────▼──────────────┐
+    │ Stage 4: Comparative     │
+    │ Fairness Audit           │
+    │ - Model performance per  │
+    │   care phenotype         │
+    │ - Model performance per  │
+    │   demographic group      │
+    │ - Delta analysis: what   │
+    │   disparities are visible│
+    │   only via phenotypes?   │
+    └───────────┬──────────────┘
+                │
+Output: Care Phenotype Fairness Report
+  ├── Phenotype definitions (human-readable)
+  ├── Clinical interpretability scores per phenotype
+  ├── Performance metrics per phenotype vs. per demographic
+  ├── "Hidden disparity" subgroups (visible only via phenotypes)
+  └── Recommendations for phenotype-aware retraining
+```
 
----
+**Validation plan:**
+- Apply to 3 prediction tasks (mortality, sepsis, readmission) across 2 datasets (MIMIC-IV, eICU)
+- Measure: Do phenotypes reveal disparities invisible to demographics? (Hypothesis: yes)
+- Measure: Are phenotype definitions stable across datasets? (Hypothesis: partially — this is expected and consistent with LTARC "Local" principle)
+- Inter-rater reliability: 3 clinicians assess clinical interpretability of generated phenotypes (target: Fleiss' kappa >0.6)
 
-## 8. Grant Strategy
-
-### 8.1 NIH Proposal (Primary — Target: End of May 2026)
-- **Framing**: Prototype + evaluate Dojo as community infrastructure for health AI
-- **Key sections**:
-  - Specific aims: Describe Dojo, prototype 4 flagship agents, validate with diverse community
-  - Innovation: Beyond evaluation → coaching; care phenotypes over demographics; community governance
-  - Approach: Phase 1 build, Phase 2 pilot at MIT course, Phase 3 scale
-  - Governance: Draft community charter (explicitly stating it's open to disruption)
-- **Reusable**: Grant designed to be repurposed by any PI for any funder
-
-### 8.2 Industry-Academia Partnership Grant (Secondary)
-- Multi-model discordance project with Google Health (Andrew Seligan / MedGemini team)
-- To be developed in parallel over next few months
-
-### 8.3 Grant Writing as Masterclass
-- Record the grant-writing process as a video series
-- Show the chaos, not just the polished output
-- Goal: Democratize grant-writing expertise beyond elite universities
-- Channel: "Masterclass" (name TBD — dropping "master" per Leo's note)
-
----
-
-## 9. Roadmap
-
-### Phase 0: Foundation (Now — April 2026)
-- [ ] Finalize values charter with community input
-- [ ] Draft governance principles document
-- [ ] Write specific aims page (version 3 incorporating March 3 meeting ideas)
-- [ ] Define 3 concrete use cases (industry, community, health system)
-- [ ] Recruit patient advocacy partners as co-designers
-- [ ] Begin grant writing work sessions (recorded for video series)
-- [ ] Explore Value Sensitive Design framework (Susannah's citations)
-
-### Phase 1: Core Build (May — August 2026)
-- [ ] Platform backend: submission portal + evaluation orchestration
-- [ ] Shortcut Detective Agent (productionize existing tool)
-- [ ] Care Phenotype Agent (productionize from paper)
-- [ ] Environmental Impact Agent (new build)
-- [ ] Value Reflection Agent (new build)
-- [ ] Agent validation framework
-- [ ] Community dashboard (results visualization)
-
-### Phase 2: Pilot (September — December 2026)
-- [ ] Premiere at MIT fall course
-- [ ] Onboard first external community members
-- [ ] Run pilot evaluations with 3 use cases
-- [ ] Iterate governance based on community feedback
-- [ ] Build Phase 2 agents (Report Card, Contextual Modeling, Persuasion, Provenance)
-- [ ] Hugging Face integration exploration
-
-### Phase 3: Scale (2027)
-- [ ] Open platform to broader community
-- [ ] International partnerships (Global South institutions)
-- [ ] Agent marketplace — community-contributed agents
-- [ ] Continuous governance evolution
-- [ ] 2-year scenario planning (what does the landscape look like in 2028?)
+**Known limitations:**
+- Requires structured EHR data with treatment process variables — won't work on imaging-only submissions
+- Care phenotypes are dataset-specific by design, making cross-dataset comparison nuanced
+- Severity adjustment is only as good as the severity score used — APACHE-IV is well-validated for ICU but no universal equivalent exists for all settings
 
 ---
 
-## 10. Two-Year Scenarios (per Hannes)
+## 5. Coaching Layer (The Differentiator)
+
+This is what makes Dojo more than another leaderboard. Three concrete interventions:
+
+### 5.1 Automated Remediation Plans
+
+For each evaluation finding, the system generates a structured remediation plan using retrieval-augmented generation over a curated knowledge base.
+
+**Knowledge base contents:**
+- Published remediation strategies indexed by failure type and clinical domain
+- Code templates for common fixes (data augmentation, feature masking, fairness constraints)
+- Case studies of successful remediations (anonymized, from Dojo participants who opt in)
+
+**Example output for "chest tube shortcut detected":**
+```
+FINDING: Model relies on chest tube presence for pneumonia classification
+IMPACT: 18% performance drop when chest tubes are masked
+CONFIDENCE: High (confirmed via counterfactual)
+
+REMEDIATION PLAN:
+1. Data augmentation: Apply chest tube segmentation mask during training
+   - Tool: [link to segmentation model in resource library]
+   - Expected impact: Reduces shortcut reliance by ~70% based on [citation]
+
+2. Architecture modification: Add adversarial debiasing head
+   - Code template: [link]
+   - Training recipe: [link]
+
+3. Deployment constraint: Flag predictions where chest tube region
+   has high attribution for manual review
+   - Implementation guide: [link]
+```
+
+### 5.2 Curated Resource Library
+
+A versioned, community-maintained collection:
+- **Debiased datasets** — with documentation of what biases were addressed and how
+- **Augmentation pipelines** — tested and validated for specific domains
+- **Training recipes** — fairness-constrained training configurations with empirical evidence
+- **Preprocessing tools** — shortcut-mitigating transformations
+
+Each resource is tagged with:
+- Applicable failure types
+- Clinical domains
+- Evidence of effectiveness (citations + Dojo re-evaluation results)
+- Community ratings
+
+### 5.3 Structured Expert Matching
+
+Not open-ended mentorship (that doesn't scale). Structured consultations:
+- **Match criteria:** failure type + clinical domain + data modality
+- **Format:** structured consultation template (problem description, attempted fixes, specific questions)
+- **Time commitment:** 1-2 hours per match, not ongoing mentorship
+- **Feedback loop:** consultation outcomes feed back into the knowledge base (anonymized)
+- **Incentive:** experts who contribute consultations get recognition in Dojo community metrics
+
+---
+
+## 6. Governance
+
+### 6.1 Operational Governance (How Decisions Get Made)
+
+**PI and institutional home:** MIT (Leo Celi) for the grant period. This is a pragmatic requirement, not a philosophical commitment.
+
+**Decision-making structure:**
+
+| Decision Type | Who Decides | Process |
+|--------------|-------------|---------|
+| Agent inclusion/removal | Technical Steering Committee (5 members) | Majority vote after public comment period (14 days) |
+| Data policy changes | Data Governance Board (3 members + legal) | Unanimous, with external review |
+| Values charter amendments | Community Assembly (all participants) | 2/3 supermajority, annual revision cycle |
+| Resource library contributions | Technical review (2 reviewers) | Quality threshold, not gatekeeping |
+| Platform roadmap priorities | Steering Committee + Community vote | Weighted: 40% committee, 60% community |
+
+**Steering Committee composition (initial):**
+- 1 clinical AI researcher
+- 1 clinician end-user
+- 1 patient/community advocate
+- 1 health equity researcher
+- 1 technical infrastructure lead
+
+Terms: 2 years, staggered. No institution holds more than 1 seat. Explicit commitment to rotate leadership.
+
+### 6.2 Agent Validation Protocol (Who Watches the Watchers)
+
+Every Dojo agent — before deployment and after every major update — undergoes:
+
+1. **Technical validation:** Benchmarked against known test cases with published sensitivity/specificity targets
+2. **Human review:** ≥3 reviewers from ≥2 stakeholder groups review agent outputs on 20 randomly sampled cases
+3. **Inter-rater reliability:** Fleiss' kappa >0.6 required between human reviewers
+4. **Adversarial testing:** 10 deliberately adversarial submissions designed to fool the agent
+5. **Limitation disclosure:** Agent must publish a known-limitations document, updated after each validation round
+
+**If an agent fails validation:** It is suspended from production, findings are published, and the community is invited to contribute fixes. This is treated as a learning event, not a failure.
+
+### 6.3 Conflict Resolution
+
+When stakeholders disagree on value trade-offs (e.g., accuracy vs. equity vs. environmental cost):
+1. The tension is documented explicitly — what values are in conflict, who holds which position
+2. Missing perspectives are identified and invited
+3. A structured deliberation process (adapted from citizens' assemblies) is used
+4. The resolution — and the dissenting views — are published
+5. Resolutions are revisited if new stakeholders or evidence emerge
+
+---
+
+## 7. Roadmap (Realistic)
+
+### Phase 0: Foundation (March — June 2026)
+**Focus:** Grant writing + existing tool validation
+
+| Task | Owner | Timeline | Dependencies |
+|------|-------|----------|--------------|
+| Finalize specific aims (v4+) | Leo + Rahul + Claude | Mar 2026 | Meeting transcript incorporated |
+| Validate shortcut detection on 12 benchmark cases | Sebastian + Yugang | Mar-Apr 2026 | Existing tool |
+| Validate care phenotype method on eICU (second dataset) | Dukyong + Boya | Mar-Apr 2026 | MIMIC-IV results (done) |
+| Co-design governance with 2 patient advocacy groups | Rawan + Leo | Apr-May 2026 | Kathy, Hector contacts |
+| VSD stakeholder interviews (N≥30) | Susannah + Marlene | Apr-Jun 2026 | Interview protocol design |
+| Submit NIH grant | Leo (PI) | End of May 2026 | All above |
+| Record grant-writing sessions for video series | Leo + group | Ongoing | Recording setup |
+
+### Phase 1: Core Build (July — December 2026)
+**Focus:** Platform + 2 agents + coaching layer
+
+| Task | Owner | Timeline |
+|------|-------|----------|
+| Platform backend (FastAPI + submission flow) | Sebastian + Julie | Jul-Aug 2026 |
+| Shortcut Detective agent wrapper + API | Sebastian + Yugang | Jul-Aug 2026 |
+| Care Phenotype agent wrapper + API | Dukyong + Boya | Jul-Sep 2026 |
+| Coaching layer: automated remediation system | Rahul + Hannes | Aug-Oct 2026 |
+| Coaching layer: resource library infrastructure | Julie + Peter | Sep-Oct 2026 |
+| Coaching layer: expert matching system | Rawan + Marlene | Oct-Nov 2026 |
+| Agent validation (human review protocol) | Harry + Susannah | Oct-Nov 2026 |
+| Frontend dashboard | Julie | Sep-Dec 2026 |
+| Security audit (sandboxing, data governance) | Sebastian | Nov-Dec 2026 |
+
+### Phase 2: Pilot + Expand (January — June 2027)
+**Focus:** Real users + MIT course + Phase 2 agents
+
+| Task | Timeline |
+|------|----------|
+| Recruit 8-12 pilot teams | Jan-Feb 2027 |
+| Run full pipeline with pilot teams | Feb-Apr 2027 |
+| Measure improvement rates (primary outcome) | Apr-May 2027 |
+| MIT fall course integration planning | Mar-Apr 2027 |
+| Environmental Impact Agent (scoped to compute carbon + energy) | Jan-Apr 2027 |
+| Provenance Tracker Agent | Mar-Jun 2027 |
+| Community governance first revision based on pilot feedback | May-Jun 2027 |
+| AI plasticity measurement (pre/post surveys) | Ongoing |
+
+### Phase 3: Scale (July 2027+)
+**Focus:** Open access + international partnerships
+
+- Open platform to broader community
+- International partnerships (Global South institutions)
+- Community-contributed agents (with validation protocol)
+- Hugging Face integration for model/data sharing
+- Regulatory alignment documentation (Scenario B preparation)
+
+---
+
+## 8. What Success Looks Like (Measurable)
+
+### Year 1 metrics
+- 2 agents deployed and validated (sensitivity/specificity targets met)
+- ≥8 teams complete the full evaluate→coach→re-evaluate cycle
+- ≥60% of teams show statistically significant improvement on identified weaknesses
+- Governance charter ratified by ≥20 community members from ≥4 stakeholder groups
+- Coaching knowledge base contains ≥50 remediation strategies with evidence
+
+### Year 2 metrics
+- ≥4 agents deployed (adding environmental + provenance)
+- ≥30 teams have used Dojo
+- ≥2 community-contributed agents pass validation
+- ≥1 published paper demonstrating care phenotypes reveal hidden disparities across multiple datasets
+- AI plasticity survey shows measurable shift in ≥3 practice dimensions
+
+### What failure looks like (we name this explicitly)
+- Teams complete evaluation but don't engage with coaching → coaching layer isn't useful enough
+- Care phenotypes don't generalize to non-ICU settings → methodology needs rethinking
+- Community governance becomes dominated by a few voices → structural revision needed
+- Submitted models can't be meaningfully sandboxed → security architecture redesign
+- Nobody comes back for re-evaluation → the improvement loop isn't compelling
+
+---
+
+## 9. Risks and Mitigations
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|-----------|--------|------------|
+| HIPAA violation from submitted clinical data | Medium | Critical | Mandatory de-identification verification before intake; DUAs; sandboxed execution |
+| Shortcut Detective produces false positives that damage submitter's reputation | Medium | High | Confidence scoring; private-by-default results; human review before public |
+| Care phenotypes don't work outside ICU | Medium | High | Validate on non-ICU data early (Phase 0); be honest in grant about scope |
+| Community governance is slow and frustrating | High | Medium | Start with lightweight structure; demonstrate that governance decisions matter |
+| Expert matching produces poor matches | Medium | Medium | Structured templates; feedback loops; start with team's own network |
+| Grant not funded | Medium | High | Design platform to work at minimal scale; seek alternative funding (NSF, foundations) |
+| Team members leave or become unavailable | High | Medium | Document everything; no single points of failure; modular agent design |
+
+---
+
+## 10. Two-Year Scenarios
 
 ### Scenario A: Agentic Research is the Norm
-By 2028, autonomous research agents handle most of the clinical AI research lifecycle. Dojo must be designed as an **environment that research agents operate within** — not a tool humans manually invoke. Dojo agents (bias detection, environmental tracking, etc.) run alongside research agents, providing continuous oversight and course correction throughout the research process.
+Autonomous research agents handle most clinical AI research. Dojo must be an environment agents operate *within*, not a tool humans manually invoke.
 
-### Scenario B: Regulation Catches Up
-Health AI faces significant new regulation. Dojo becomes the **compliance infrastructure** — providing auditable provenance trails, standardized fairness assessments, and environmental impact reports that regulators require.
+**Implication for architecture:** Dojo needs a programmatic API from day one — not just a web portal. Agents should be able to submit models, receive evaluations, and act on coaching programmatically.
 
-### Scenario C: Community-Driven Innovation Succeeds
-Dojo's model of community governance and democratized expertise takes hold. Institutions beyond elite universities are producing competitive health AI, using Dojo's tools and community for support. The gym metaphor works — everyone who participates gets stronger.
+### Scenario B: Regulation Arrives
+Health AI faces new regulation requiring fairness audits and provenance tracking.
 
-**Strategy**: Build for Scenario A (most technically demanding), design governance for Scenario C (most ambitious), prepare documentation for Scenario B (most likely to attract funding).
+**Implication for architecture:** Audit logs, reproducibility, and standardized reporting formats must be built in from the start, not bolted on.
+
+### Scenario C: Community-Driven Innovation Works
+Institutions beyond elite universities produce competitive health AI using Dojo's tools.
+
+**Implication for architecture:** Low barrier to entry, generous free tier, documentation that assumes no prior AI expertise.
+
+**Build strategy:** Design for A (programmatic API), document for B (audit trails), price for C (accessible).
 
 ---
 
-## 11. Open Questions
+## 11. Open Questions (Honest)
 
-1. **Centralized vs. distributed agent architecture?** (Rahul's tension) — Start structured, evolve toward distributed as trust builds
-2. **How do we validate the validators?** Agents evaluating agents risks infinite regress (Harry's point) — humans must remain in the loop, but what kind of humans with what capabilities?
-3. **Pluralism**: How do indigenous perspectives on pluralism reshape our approach? Western pluralism may not be the only valid frame
-4. **Language of the grant**: Avoid "evolved humans" (Harry's advice); frame as "enhanced human-AI collaboration capabilities"
-5. **Sustainability of the community**: How do we avoid this becoming another platform that launches with energy and fades?
+1. **Can care phenotypes work outside the ICU?** The ICU is data-rich. Primary care, outpatient — much less structured data. This is a real methodological question, not just an engineering one.
+2. **Will teams actually come back for re-evaluation?** The whole value proposition depends on the coaching→re-evaluation loop. If nobody re-evaluates, Dojo is just another benchmark.
+3. **How do we prevent the governance from becoming performative?** Community governance sounds great but often becomes a rubber stamp for the founding team's decisions. Concrete countermeasures needed.
+4. **What happens when an agent and a human reviewer disagree?** The validation protocol says "human review" but doesn't specify what happens when humans disagree with each other or with the agent.
+5. **Can we actually sandbox models securely enough for health data?** Container escape vulnerabilities are real. This needs a dedicated security review, not just "we use Docker."
+6. **Is the team large enough?** 12+ people across 8 time zones with other jobs — coordination overhead is real.
 
 ---
 
@@ -308,13 +498,15 @@ Dojo's model of community governance and democratized expertise takes hold. Inst
 
 | Action | Owner | Status |
 |--------|-------|--------|
-| Draft governance principles | Group | Pending |
-| Draft values/incentives document | Group (Rawan raised) | Pending |
-| Draft practical outcomes / example use cases | Group (Susannah raised) | Pending |
+| Draft governance principles | Group | Done (v1 in this doc) |
+| Draft values/incentives document | Group (Rawan raised) | Done (v1 — values-charter.md) |
+| Draft practical outcomes / example use cases | Group (Susannah raised) | Done (use-cases.md) |
 | Send Value Sensitive Design citations | Susannah → Leo | Pending |
 | Draft 2-year scenarios + roadmap | Group (Hannes raised) | Done (in this doc) |
 | Schedule grant-writing work sessions | Leo | Pending |
 | Share meeting recording | Leo | Pending |
-| Reach out to Hugging Face | Leo | Pending |
-| Connect with patient advocacy groups (Kathy, Hector) | Leo | Ongoing |
-| Polished specific aims page (v3) | Leo + Claude | Pending |
+| Reach out to Hugging Face | Leo | Deferred to Phase 3 |
+| Connect with patient advocacy groups (Kathy, Hector) | Leo | Ongoing — needed for Phase 0 |
+| Specific aims page v4 | Leo + Rahul + Claude | Done (grant-specific-aims.md) |
+| Validate shortcut detection on benchmark cases | Sebastian + Yugang | Pending — needed for grant |
+| Validate care phenotypes on eICU | Dukyong + Boya | Pending — needed for grant |
