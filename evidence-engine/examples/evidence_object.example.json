@@ -1,0 +1,364 @@
+{
+  "artifact_root": "f33276758cbb3f497f6ee675e72f0dce82e18dbdfbffa2e07440d0083bdf1f16",
+  "assumptions": [
+    {
+      "assumption": "Exchangeability (no unmeasured confounding given the specified covariates).",
+      "what_would_invalidate": "Any unmeasured common antecedent of both exposure and outcome. Partially bounded by the E-value; not bounded against selection or measurement bias."
+    },
+    {
+      "assumption": "Positivity (every covariate stratum could receive either treatment).",
+      "what_would_invalidate": "Deterministic treatment in some stratum; monitored via propensity trimming and the Kish design sample size."
+    },
+    {
+      "assumption": "Consistency / well-defined intervention.",
+      "what_would_invalidate": "An ambiguous or heterogeneous exposure definition that maps to multiple real interventions."
+    },
+    {
+      "assumption": "Unbiased measurement of exposure, outcome, covariates.",
+      "what_would_invalidate": "Differential measurement by group \u2014 e.g. the pulse-oximetry bias surfaced in the Phase-0 audit."
+    },
+    {
+      "assumption": "No selection bias at or after time zero.",
+      "what_would_invalidate": "Differential eligibility or loss to follow-up across arms after t0."
+    },
+    {
+      "assumption": "Correct model specification (propensity / outcome).",
+      "what_would_invalidate": "Misspecified functional form; partially checked by covariate balance (SMD) and the refutation probes."
+    }
+  ],
+  "audit_caveats": [
+    "Data are a SYNTHETIC surrogate, not real MIMIC-IV; findings are illustrative of the machinery only and carry no clinical meaning.",
+    "Source is single-center ICU data and is NOT representative of any general population; effects observed here may not transfer.",
+    "Pulse-oximetry probe: occult-hypoxemia rate varies by recorded race (highest in 'BLACK/AFRICAN AMERICAN'); SpO2 is a racially biased measurement and any analysis using it inherits that bias.",
+    "Measurement/testing rates differ by recorded race; observed values are conditioned on differential ascertainment.",
+    "Equity-relevant variables are never silently imputed; missingness is carried as explicit indicator variables."
+  ],
+  "claim": {
+    "exposure": "early_vasopressor",
+    "outcome": "mortality_28d",
+    "scope": "the pre-registered research context 'Early vasopressor exposure vs 28-day mortality (DEMO/SYNTHETIC)' on data 'synthetic-surrogate-v1::n=4000::seed=20240617'",
+    "stance": "HYPOTHESIS_GENERATING",
+    "stance_phrase": "hypothesis-generating",
+    "statement": "Within the pre-registered research context 'Early vasopressor exposure vs 28-day mortality (DEMO/SYNTHETIC)' on data 'synthetic-surrogate-v1::n=4000::seed=20240617', an association between 'early_vasopressor' and 'mortality_28d' is hypothesis-generating and requires confirmatory trial before any interpretation beyond this research context."
+  },
+  "data_is_synthetic": true,
+  "e_value": {
+    "ci_limit": 1.7848,
+    "note": "Minimum unmeasured exposure\u2013outcome confounding (RR scale) needed to explain the estimate; the CI-limit E-value bounds the interval.",
+    "point": 2.2778,
+    "rr_used": 1.4592
+  },
+  "empirical_calibration": {
+    "calibrated_ci95": [
+      1.2397,
+      1.7176
+    ],
+    "calibrated_log_rr": 0.3779,
+    "calibrated_p_value": 6e-06,
+    "calibrated_se": 0.08318,
+    "empirical_null": {
+      "fitted": true,
+      "mu": -0.01258,
+      "n_controls": 32,
+      "note": "Empirical systematic-error distribution fitted from negative controls.",
+      "tau": 0.0
+    },
+    "raw_log_rr": 0.36532,
+    "raw_p_value": 1.1e-05
+  },
+  "equity": {
+    "evidence_absent_in": [],
+    "evidence_present_in": [
+      "WHITE"
+    ],
+    "holds_across_all_estimable_groups": false,
+    "per_group": [
+      {
+        "ci95_rr": [
+          0.6209,
+          2.6535
+        ],
+        "classification": "SILENT",
+        "group": "ASIAN",
+        "n": 243,
+        "reason": "",
+        "risk_ratio": 1.28361
+      },
+      {
+        "ci95_rr": [
+          0.9178,
+          2.1515
+        ],
+        "classification": "SILENT",
+        "group": "BLACK/AFRICAN AMERICAN",
+        "n": 664,
+        "reason": "",
+        "risk_ratio": 1.40518
+      },
+      {
+        "ci95_rr": [
+          0.7538,
+          2.3435
+        ],
+        "classification": "SILENT",
+        "group": "HISPANIC/LATINO",
+        "n": 350,
+        "reason": "",
+        "risk_ratio": 1.32912
+      },
+      {
+        "ci95_rr": [
+          0.7844,
+          3.5654
+        ],
+        "classification": "SILENT",
+        "group": "OTHER/UNKNOWN",
+        "n": 248,
+        "reason": "",
+        "risk_ratio": 1.6723
+      },
+      {
+        "ci95_rr": [
+          1.2041,
+          1.7975
+        ],
+        "classification": "PRESENT",
+        "group": "WHITE",
+        "n": 2495,
+        "reason": "",
+        "risk_ratio": 1.47114
+      }
+    ],
+    "silent_in": [
+      "ASIAN",
+      "BLACK/AFRICAN AMERICAN",
+      "HISPANIC/LATINO",
+      "OTHER/UNKNOWN"
+    ],
+    "stratifier": "race"
+  },
+  "estimate": {
+    "ci95_rr": [
+      1.2242,
+      1.6961
+    ],
+    "log_rr": 0.36532,
+    "reason": "",
+    "risk_control": 0.11457,
+    "risk_difference": 0.05052,
+    "risk_ratio": 1.44098,
+    "risk_treated": 0.16509,
+    "se_log_rr": 0.08318,
+    "status": "ok"
+  },
+  "evidence_tier": "HYPOTHESIS_GENERATING",
+  "negative_controls": {
+    "empirical_null": {
+      "fitted": true,
+      "mu": -0.01258,
+      "n_controls": 32,
+      "note": "Empirical systematic-error distribution fitted from negative controls.",
+      "tau": 0.0
+    },
+    "named_controls": {
+      "nc_admission_in_summer": {
+        "ci95_rr": [
+          0.858,
+          1.0777
+        ],
+        "log_rr": -0.03919,
+        "reason": "",
+        "risk_control": 0.25211,
+        "risk_difference": -0.00969,
+        "risk_ratio": 0.96157,
+        "risk_treated": 0.24242,
+        "se_log_rr": 0.05816,
+        "status": "ok"
+      },
+      "nc_hospital_elevator_use": {
+        "ci95_rr": [
+          0.9761,
+          1.1119
+        ],
+        "log_rr": 0.04095,
+        "reason": "",
+        "risk_control": 0.48953,
+        "risk_difference": 0.02046,
+        "risk_ratio": 1.0418,
+        "risk_treated": 0.50999,
+        "se_log_rr": 0.03324,
+        "status": "ok"
+      }
+    },
+    "panel_size_estimable": 32
+  },
+  "propensity_diagnostics": {
+    "balance_achieved": true,
+    "balance_per_covariate": {
+      "age": {
+        "smd_after": 0.0009,
+        "smd_before": 0.1422
+      },
+      "lactate": {
+        "smd_after": -0.011,
+        "smd_before": 0.2396
+      },
+      "lactate_missing": {
+        "smd_after": 0.0039,
+        "smd_before": -0.1113
+      },
+      "sex_F": {
+        "smd_after": 0.0019,
+        "smd_before": -0.0631
+      },
+      "sex_M": {
+        "smd_after": -0.0019,
+        "smd_before": 0.0631
+      },
+      "sofa_proxy": {
+        "smd_after": -0.0116,
+        "smd_before": 0.5073
+      }
+    },
+    "effective_sample_size": 3655.1,
+    "max_abs_smd_after": 0.0116,
+    "max_weight": 6.833,
+    "missingness_notes": {
+      "lactate": "missing-indicator method applied (2364 missing); value placeholder=median(1.8) with explicit indicator."
+    },
+    "n_total": 4000,
+    "n_trimmed": 0
+  },
+  "provenance": {
+    "artifact_ledger": {
+      "chain": [
+        {
+          "artifact_id": "6991b77d3c545e3dae982bc8d837a53e8aab5afed1478e4266a0a78c2aa07757",
+          "parents": [],
+          "payload_digest": "507887343a113afa911d952ebb9c251a3467945729c2d9bbdba3463b13f9c133",
+          "stage": "data"
+        },
+        {
+          "artifact_id": "8977a8ecc09ee613cc26448073a4230cd4889238f82409a3f0a5a956d1dc160c",
+          "parents": [
+            "6991b77d3c545e3dae982bc8d837a53e8aab5afed1478e4266a0a78c2aa07757"
+          ],
+          "payload_digest": "ff739c59830f75c5cfc9735935e638b67dff8e75936b58b40b9748e590d16112",
+          "stage": "phase0_audit"
+        },
+        {
+          "artifact_id": "0853514951700b70ed8aac05fdf8396e3b6efc3a05986d73e4461785df5aa887",
+          "parents": [
+            "8977a8ecc09ee613cc26448073a4230cd4889238f82409a3f0a5a956d1dc160c"
+          ],
+          "payload_digest": "f3840d23bb09a1603e96d7c4979bc439fee0e9dfa170fde070e8e6abc62c3c71",
+          "stage": "protocol"
+        },
+        {
+          "artifact_id": "48749e7e0367e512fcfe89ff3df2ee2b2caa3cc8b69fd44aad65ddf9deeb4c81",
+          "parents": [
+            "0853514951700b70ed8aac05fdf8396e3b6efc3a05986d73e4461785df5aa887"
+          ],
+          "payload_digest": "f830a30e87a923935f781149c0a08ef80a58c13d7846ce571b3a754814140d59",
+          "stage": "cohort"
+        },
+        {
+          "artifact_id": "e6e06917ff19f9298e0b7c8eeb2ac3c5ab547419abe6d9ca9714d822b768f130",
+          "parents": [
+            "48749e7e0367e512fcfe89ff3df2ee2b2caa3cc8b69fd44aad65ddf9deeb4c81"
+          ],
+          "payload_digest": "e1535d6dac4c3ce9649603c2be4660dc31bb5a4161cf16c393551e3fc58da641",
+          "stage": "propensity"
+        },
+        {
+          "artifact_id": "331823d6950cfec0d358c0806171ed80e0d38bad92eeac6ed456c7b59fe486c3",
+          "parents": [
+            "e6e06917ff19f9298e0b7c8eeb2ac3c5ab547419abe6d9ca9714d822b768f130"
+          ],
+          "payload_digest": "7288332eea0c88f6b63ea91e1705c22eee4a05ff30f8e6df8d1dc2faecc2aa62",
+          "stage": "primary_estimate"
+        },
+        {
+          "artifact_id": "96f23b938edaf97df5cb61bdd0cd296f930773c09aafc1a9e7d75dccb315c549",
+          "parents": [
+            "331823d6950cfec0d358c0806171ed80e0d38bad92eeac6ed456c7b59fe486c3"
+          ],
+          "payload_digest": "720153464f952a238e2e2031e18016a3377ba7965e949f29a7e733d93152b1a0",
+          "stage": "calibration"
+        },
+        {
+          "artifact_id": "ff2d45603bffc33ce7305eb1b82998722d2b31690ad30bc64b18d5a092f358dc",
+          "parents": [
+            "96f23b938edaf97df5cb61bdd0cd296f930773c09aafc1a9e7d75dccb315c549"
+          ],
+          "payload_digest": "21d7daf8184067330ea17fac4eafd0e88076b3cc1e45dd39c400f1952b58e35d",
+          "stage": "evalue"
+        },
+        {
+          "artifact_id": "67c537d7fdc64323c8aaf00bd013d491daef692c4cb59e07ce0fa3592e95b2e6",
+          "parents": [
+            "ff2d45603bffc33ce7305eb1b82998722d2b31690ad30bc64b18d5a092f358dc"
+          ],
+          "payload_digest": "47f012f67526eceb448a660621b272ffcdb108c4bd692e042d776802989784e3",
+          "stage": "refutation"
+        },
+        {
+          "artifact_id": "191ad4edcd13c5f59d78ca4f38d7fbcdff66ccbcba7249c71ae55a2351d4420c",
+          "parents": [
+            "67c537d7fdc64323c8aaf00bd013d491daef692c4cb59e07ce0fa3592e95b2e6"
+          ],
+          "payload_digest": "decc89d26d367bd40b76bbb7b382e7bbd3992a5c8b57a73041f4cb0e320866e7",
+          "stage": "equity"
+        },
+        {
+          "artifact_id": "f33276758cbb3f497f6ee675e72f0dce82e18dbdfbffa2e07440d0083bdf1f16",
+          "parents": [
+            "191ad4edcd13c5f59d78ca4f38d7fbcdff66ccbcba7249c71ae55a2351d4420c"
+          ],
+          "payload_digest": "2843adea71274f937cfd1ed6fcfd351e5e1f74210f59c52d4aae3ba507f62e8b",
+          "stage": "evidence_object"
+        }
+      ],
+      "root": "f33276758cbb3f497f6ee675e72f0dce82e18dbdfbffa2e07440d0083bdf1f16"
+    },
+    "config_hash": "66dc7a539353ed55d63d0fd81fd2cb3bca8ddfa16d9b649f6528a092135ef700",
+    "data_version": "synthetic-surrogate-v1::n=4000::seed=20240617",
+    "engine_version": "0.1.0",
+    "git_commit": "8f5bd3a9a589e37ad16ab21fd1758caea25da767",
+    "protocol_hash": "8ad9e3e519274430d7cd08a44fb46fdb8176cddea8f077141158209fca379126",
+    "seed": 20240617
+  },
+  "refutations": [
+    {
+      "estimated_effect": 0.06288,
+      "interpretation": "Permuted exposure is expected to yield a near-zero effect.",
+      "new_effect": -0.10445,
+      "p_value": 0.0,
+      "refuter": "placebo_treatment_refuter",
+      "status": "ok"
+    },
+    {
+      "estimated_effect": 0.06288,
+      "interpretation": "Adding a random confounder is expected to barely move the estimate.",
+      "new_effect": 0.06288,
+      "p_value": NaN,
+      "refuter": "random_common_cause",
+      "status": "ok"
+    },
+    {
+      "estimated_effect": 0.06288,
+      "interpretation": "A random subset is expected to reproduce the estimate.",
+      "new_effect": 0.06387,
+      "p_value": 0.46017,
+      "refuter": "data_subset_refuter",
+      "status": "ok"
+    }
+  ],
+  "tier_rationale": [
+    "calibrated CI excludes the null after empirical calibration.",
+    "balance achieved (max |SMD|=0.012 \u2264 0.1).",
+    "CI E-value=1.78 \u2265 1.5 (robust).",
+    "placebo refuter near null (no falsification).",
+    "signal present in ['WHITE'] but silent in ['ASIAN', 'BLACK/AFRICAN AMERICAN', 'HISPANIC/LATINO', 'OTHER/UNKNOWN']."
+  ]
+}

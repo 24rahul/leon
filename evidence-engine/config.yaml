@@ -1,0 +1,85 @@
+# =============================================================================
+# Evidence Engine — single source of configuration.
+#
+# Everything the pipeline does is driven from this file. Changing it changes
+# the config hash that is stamped onto every result for provenance.
+#
+# SAFETY: `data.full_data_path` defaults to null so the engine NEVER touches a
+# restricted/credentialed dataset. To point it at your own credentialed MIMIC
+# copy later, set the path here. If `data.demo_path` does not exist on disk, the
+# loader generates a DETERMINISTIC SYNTHETIC SURROGATE that mirrors the
+# MIMIC-IV demo schema (see README "Data" section) so the pipeline is runnable
+# offline. The surrogate is clearly labelled as synthetic in every output.
+# =============================================================================
+
+run:
+  seed: 20240617          # fixed seed -> byte-identical reruns
+  output_dir: outputs
+  log_level: INFO
+
+data:
+  # Path to a local copy of the OPEN MIMIC-IV *demo* dataset (no credentialing).
+  # If this path is absent, a synthetic surrogate is generated. Never point this
+  # at credentialed/full MIMIC.
+  demo_path: data/mimic-iv-demo
+  # Path to a credentialed/full copy. MUST stay null in this prototype.
+  full_data_path: null
+  # Hard guard: if true, the loader refuses any path that is not the demo path.
+  forbid_restricted: true
+  # Size of the synthetic surrogate when the demo data is not present.
+  synthetic_n_patients: 4000
+
+audit:
+  # Occult hypoxemia: arterial SaO2 below this while the pulse-ox SpO2 reads in
+  # the "reassuring" band below. These thresholds follow the published
+  # pulse-oximetry bias literature (Sjoding et al., NEJM 2020).
+  occult_hypoxemia_sao2_max: 88.0
+  spo2_reassuring_low: 92.0
+  spo2_reassuring_high: 96.0
+  # Demographics to stratify representation/equity reporting on.
+  equity_strata: [race, sex, age_group]
+  # Equity-relevant variables across which silent imputation is FORBIDDEN.
+  no_impute_variables: [race, sex, spo2, sao2]
+
+protocol:
+  # The toy target-trial question this prototype emulates end-to-end.
+  # NOTE: this is a hypothesis-generating demonstration, not a clinical claim.
+  name: "Early vasopressor exposure vs 28-day mortality (DEMO/SYNTHETIC)"
+  eligibility:
+    min_age: 18
+    require_icu_stay: true
+  exposure: early_vasopressor          # binary treatment strategy contrast
+  outcome: mortality_28d               # primary outcome
+  time_zero: icu_admission             # forbids immortal-time bias by design
+  follow_up_days: 28
+  estimand: "ATE (risk difference) under the emulated assignment"
+  confounders:
+    - name: age
+      justification: "Age drives both treatment intensity and mortality risk."
+    - name: sex
+      justification: "Recorded sex associates with treatment patterns and outcome."
+    - name: sofa_proxy
+      justification: "Illness severity confounds vasopressor use and death."
+    - name: lactate
+      justification: "Hypoperfusion marker influencing both treatment and outcome."
+  # Negative-control outcomes: the exposure cannot plausibly cause these.
+  negative_control_outcomes:
+    - nc_hospital_elevator_use
+    - nc_admission_in_summer
+
+estimator:
+  method: iptw                         # inverse-probability-of-treatment weighting
+  ps_model: logistic
+  trim_propensity: [0.02, 0.98]        # trim extreme weights; fail loud if cohort collapses
+  bootstrap_iterations: 500
+  evalue: true
+  # Size of the negative-control panel used for empirical-null calibration
+  # (Schuemie et al.). Below `min_negative_controls` the engine refuses to
+  # claim a calibrated result and downgrades to insufficient evidence.
+  negative_control_panel_size: 30
+  min_negative_controls: 10
+  rare_outcome: false                  # governs OR->RR conversion for the E-value
+  refuter_simulations: 20              # dowhy refuter resamples (kept small + seeded)
+
+reporting:
+  min_stratum_n: 30                    # below this, report "insufficient evidence"

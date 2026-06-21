@@ -1,0 +1,11 @@
+# Direct dependencies for the evidence-engine prototype (pinned).
+# A full transitive lock is in requirements.lock.txt.
+pandas==2.3.3
+numpy==2.4.6
+scikit-learn==1.9.0
+scipy==1.15.3
+statsmodels==0.14.6
+lifelines==0.30.3
+dowhy==0.14
+PyYAML==6.0.3
+pytest==9.1.1

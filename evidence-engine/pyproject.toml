@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "evidence-engine"
+version = "0.1.0"
+description = "A fail-safe target-trial-emulation prototype that generates hypotheses (not recommendations) from observational health data."
+requires-python = ">=3.11"
+readme = "README.md"
+license = { file = "LICENSE" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-q"
+markers = ["slow: end-to-end runs (pipeline, reproducibility)"]
+
+[tool.mypy]
+python_version = "3.11"
+mypy_path = "src"
+packages = ["evidence_engine"]
+warn_unused_ignores = false
+ignore_missing_imports = true
+disallow_untyped_defs = false
