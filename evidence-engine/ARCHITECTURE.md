@@ -20,7 +20,10 @@ src/evidence_engine/
 │   └── report.py              Markdown audit report (passes the vocabulary guard).
 │
 ├── protocol/
-│   └── schema.py              Frozen protocol; seal() → hash; OutcomeAccessToken capability.
+│   ├── schema.py              Frozen protocol; seal() → hash; OutcomeAccessToken capability.
+│   ├── causal_dag.py          Explicit DAG; acyclicity + backdoor/mediator/collider checks.
+│   ├── dag_gate.py            Human DAG-approval gate; unforgeable DagApprovalCertificate.
+│   └── dag_approval.py        Config glue: build DAG, replay reviewer signatures, issue cert.
 │
 ├── cohort/
 │   └── builder.py             Eligibility + time-zero enforcement; token-gated outcome access.
@@ -43,8 +46,7 @@ src/evidence_engine/
 │   └── evidence_object.py     Pessimistic-gate tier decision; the one emitted result.
 │
 └── stubs/                     Typed interfaces + NotImplementedError (see ROADMAP.md).
-    ├── dag_gate.py            Human DAG-approval gate           (Phase 2, Harm c).
-    ├── multi_estimator.py     Multi-estimator concurrence       (Phase 2, Harm a).
+    ├── multi_estimator.py     Multi-estimator concurrence       (Phase 2, Harm a — partial).
     ├── rct_benchmark.py       RCT-benchmark harness             (Phase 3).
     └── replication.py         Cross-dataset replication         (Phase 3, Harm b).
 ```
@@ -55,6 +57,9 @@ src/evidence_engine/
    is built; its caveats are threaded into the final object.
 2. **Seal before you see Y.** `cohort.outcome(...)` and every outcome read require
    an `OutcomeAccessToken`, mintable only from a `SealedProtocol`.
+2b. **Approve the DAG before you estimate.** `require_certificate(...)` guards the
+   cohort/estimation path; the `DagApprovalCertificate` is mintable only after the
+   DAG passes structural checks and the human quorum signs (Harm c).
 3. **Propensity fitted once.** Weights are reused for the primary outcome and every
    negative control, so calibration sees exactly the method it calibrates.
 4. **Weakest-link tiering.** The evidence tier is `min` over independent gates;
@@ -74,6 +79,7 @@ src/evidence_engine/
 | E-value closed form | `tests/test_evalue.py` |
 | Empirical-null calibration + fail-loud | `tests/test_calibration.py` |
 | AIPW recovery, concurrence, deterministic bootstrap | `tests/test_estimators.py` |
+| DAG structural checks + unforgeable approval certificate | `tests/test_dag_gate.py` |
 | Provenance ledger chaining + tamper detection | `tests/test_provenance.py` |
 | Restricted-data guard, end-to-end, byte-reproducibility | `tests/test_pipeline.py` |
 ```

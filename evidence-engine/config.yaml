@@ -67,6 +67,25 @@ protocol:
     - nc_hospital_elevator_use
     - nc_admission_in_summer
 
+# Causal DAG + its human approval (Harm c). The estimator REFUSES to run unless a
+# DagApprovalCertificate is minted: the DAG must pass structural checks (acyclic,
+# confounders are backdoor common-causes, no conditioning on mediators/colliders)
+# AND >=2 named reviewers including a clinician and an affected-population voice
+# must sign the exact DAG hash. The canonical confounding DAG is derived from the
+# protocol; `extra_edges` lets you declare additional structure.
+dag:
+  extra_edges: []          # e.g. [[early_vasopressor, some_mediator]]
+  reviewers:
+    - name: "Dr. A. Okonkwo"
+      role: clinician
+      affiliation: "ICU, Demo General Hospital"
+    - name: "R. Delgado (patient advocate)"
+      role: affected_population
+      affiliation: "Sepsis Survivors Council"
+    - name: "Prof. M. Lindqvist"
+      role: epidemiologist
+      affiliation: "Demo School of Public Health"
+
 estimator:
   method: iptw                         # inverse-probability-of-treatment weighting
   ps_model: logistic

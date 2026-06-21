@@ -109,7 +109,7 @@ placed in this table, it does not belong here.
 |---|---|---|
 | (a) A wrong answer reaching a patient | Closed claim algebra; `INSUFFICIENT_EVIDENCE` default; fail-loud on assumption violation; no "action" output exists | `honesty/claims.py`, `honesty/evidence_object.py` |
 | (b) A biased-but-plausible answer entrenching inequity | Phase-0 audit as a precondition; pulse-ox measurement-bias probe; empirical-null calibration; mandatory equity stratification that reports where evidence is *absent* | `audit/phase0.py`, `estimator/calibration.py`, `equity/stratify.py` |
-| (c) Concentrating the power to declare truth | The engine cannot declare truth; human DAG-approval gate (stub); content-addressed provenance so findings are *verified*, not *trusted* | `stubs/dag_gate.py`, `provenance.py` |
+| (c) Concentrating the power to declare truth | The engine cannot declare truth; the **human DAG-approval gate** refuses to estimate without a structurally-valid, human-signed causal graph (clinician + affected-population quorum); content-addressed provenance so findings are *verified*, not *trusted* | `protocol/dag_gate.py`, `protocol/causal_dag.py`, `provenance.py` |
 
 ---
 
@@ -149,6 +149,12 @@ placed in this table, it does not belong here.
   are unreadable until the protocol is sealed (`protocol/schema.py`).
 - Cohort construction with **time-zero enforcement** (immortal-time bias excluded
   by construction).
+- **Human DAG-approval gate**: estimation is refused without a
+  `DagApprovalCertificate` — an unforgeable capability minted only when the causal
+  graph passes structural checks (acyclic; every confounder a backdoor common-cause;
+  no conditioning on mediators/colliders) AND ≥2 named reviewers including a
+  clinician and an affected-population voice sign the exact DAG hash
+  (`protocol/dag_gate.py`, `protocol/causal_dag.py`).
 - Two estimators end-to-end: **stabilized IPTW** (with covariate-balance SMD
   diagnostics, explicit missingness handling, and a **propensity-aware bootstrap
   CI**) plus a **doubly-robust AIPW** estimator with an efficient-influence-function
@@ -170,7 +176,6 @@ placed in this table, it does not belong here.
 **Stubbed (interfaces defined, `NotImplementedError`, listed in
 [`ROADMAP.md`](ROADMAP.md)) — these are NOT complete:**
 
-- Human DAG-approval gate (`stubs/dag_gate.py`)
 - Multi-estimator concurrence — **partially built**: IPTW-vs-AIPW is live;
   matching / g-computation / TMLE remain stubbed (`stubs/multi_estimator.py`)
 - RCT-benchmark harness (`stubs/rct_benchmark.py`)
@@ -181,14 +186,14 @@ placed in this table, it does not belong here.
 ## Architecture at a glance
 
 ```
-config ─► data.loader ─►  Phase0 audit  ─► caveats ─┐
-                              │                      ▼
-        protocol.seal() ─► cohort.builder ─► IPTW ─► calibration ─► E-value
-              │ (token)         │  outcomes        (neg-control panel)   │
-              ▼                 │  via token                             ▼
-        [stub] dag_gate         └────────► refutation, equity ─► EvidenceObject
-                                                                  │
-                                              vocabulary guard ◄──┘─► serialize
+config ─► data.loader ─►  Phase0 audit  ─► caveats ───────────────┐
+                              │                                    ▼
+        protocol.seal() ─► dag_gate ─► cohort.builder ─► IPTW+AIPW ─► calibration ─► E-value
+              │ (token)     (cert)        │  outcomes      (concur)  (neg-control)    │
+              ▼             required       │  via token                               ▼
+        OutcomeAccessToken  to estimate   └────────► refutation, equity ─► EvidenceObject
+                                                                            │
+                                                        vocabulary guard ◄──┘─► serialize
 ```
 
 Each arrow is an immutable value object; each stage appends a content-addressed

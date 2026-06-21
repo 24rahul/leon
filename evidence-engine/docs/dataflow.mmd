@@ -15,7 +15,7 @@ flowchart TB
       P0["Phase-0 audit (runs FIRST, unconditionally)<br/>occult-hypoxemia + missingness → caveats"]:::gate
       SEAL["Protocol.seal()<br/>commits SHA-256 pre-registration hash"]:::cap
       TOK(["OutcomeAccessToken<br/><i>unforgeable capability</i>"]):::cap
-      DAG["DAG-approval gate<br/>(human sign-off on causal structure)"]:::stub
+      DAG["DAG-approval gate<br/>structural checks + human quorum →<br/>DagApprovalCertificate"]:::cap
     end
 
     subgraph EST["Estimation — every Y read is token-gated"]
@@ -42,8 +42,10 @@ flowchart TB
 
     CFG --> DL --> P0 --> SEAL
     SEAL --> TOK
-    SEAL -.->|"Phase-2: must approve<br/>before estimation"| DAG
-    SEAL --> COH --> PS --> IPTW --> AIPW --> CONC
+    SEAL --> DAG
+    DAG ==>|"certificate REQUIRED<br/>before estimation"| COH
+    PS --> IPTW --> AIPW --> CONC
+    COH --> PS
     TOK -.->|authorizes every<br/>outcome read| COH
     CONC --> NC --> EVAL --> REF --> EQ
     EQ --> TIER --> VOCAB --> EVO

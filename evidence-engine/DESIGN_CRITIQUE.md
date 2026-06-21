@@ -118,7 +118,7 @@ The spec names three harms. A design is only serious if every harm maps to a
 |---|---|---|
 | **(a) A wrong answer reaches a patient** | Closed claim algebra + `Stance.INSUFFICIENT_EVIDENCE` as the *default*; fail-loud on assumption violation; no API surface that returns an "action". | A plausible-looking estimate being read as a treatment decision. |
 | **(b) A biased-but-plausible answer entrenches inequity** | Phase-0 audit as a *precondition* (inference cannot run first); measurement-bias probe surfaced as a caveat on every result; empirical-null calibration; mandatory equity stratification that reports *where evidence is absent*, never extrapolating a population-average effect to an under-represented group. | A confidently-stated effect that only holds for the majority group, silently generalized. |
-| **(c) Concentrating the power to declare truth** | The system *cannot* declare truth (claim algebra); the human DAG-approval gate (`stubs/dag_gate.py`) keeps causal-structure authority with domain experts; provenance is a content-addressed chain (`provenance.py`) so any party can independently *verify* a finding rather than *trust* its author. | One actor's model becoming an unauditable oracle. |
+| **(c) Concentrating the power to declare truth** | The system *cannot* declare truth (claim algebra); the **human DAG-approval gate** (`protocol/dag_gate.py`) keeps causal-structure authority with domain experts — estimation is refused without a `DagApprovalCertificate` minted only when the graph passes structural checks AND a clinician + affected-population quorum signs it; provenance is a content-addressed chain (`provenance.py`) so any party can independently *verify* a finding rather than *trust* its author. | One actor's model becoming an unauditable oracle. |
 
 The mapping is the design review: if a module cannot be placed in this table, it
 does not belong in the system.
@@ -167,12 +167,12 @@ stub can be filled in later **without touching the core**:
 ```
 config ─► data.loader ─►  Phase0 audit  ─► (caveats) ─┐
                               │                        ▼
-        protocol.seal() ─► cohort.builder ─► estimator ─► honesty.EvidenceObject ─► guard ─► serialize
-              │  (token)        ▲   ▲            │  ▲           ▲
-              ▼                 │   │            │  │           │
-        [stub] dag_gate ────────┘   │   [stub] multi_estimator │
-                                    │            concurrence    │
-              [stub] rct_benchmark ─┴── [stub] replication ─────┘
+        protocol.seal() ─► dag_gate ─► cohort.builder ─► estimator ─► honesty.EvidenceObject ─► guard ─► serialize
+              │  (token)     (cert)       ▲   ▲            │  ▲           ▲
+              ▼              required      │   │            │  │           │
+        OutcomeAccessToken   to estimate ─┘   │   IPTW+AIPW concurrence   │
+                                              │   [stub] full panel       │
+              [stub] rct_benchmark ───────────┴── [stub] replication ─────┘
 ```
 
 - Every arrow is a **value object** (frozen dataclass), never a mutable shared
@@ -203,9 +203,12 @@ A critique that finds no faults is flattery. The real limitations, ranked:
 2. **Identification is assumed, never proven.** No-unmeasured-confounding,
    positivity, consistency, correct DAG — the data are mute on all of them. The
    E-value and calibration bound *some* violations; they cannot bound selection
-   bias or a missing confounder nobody named. The DAG-approval gate (stubbed)
-   is the intended human check, and its being stubbed is the system's single
-   largest current gap.
+   bias or a missing confounder nobody named. The **human DAG-approval gate** is
+   the intended check and is now built: estimation is refused unless the causal
+   graph is structurally valid AND a clinician + affected-population quorum has
+   signed it. What code still cannot do is guarantee the *signed graph is correct* —
+   that remains an irreducibly human judgement the gate makes explicit and
+   auditable rather than silent.
 3. **Two estimators are better than one, but still not a panel.** IPTW and a
    doubly-robust AIPW now triangulate (their concurrence is a live gate), which is
    a real improvement over a single method. But full defensibility wants matching,

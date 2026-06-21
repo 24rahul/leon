@@ -86,12 +86,14 @@ class EvidenceObject:
     negative_controls: dict[str, Any] = field(default_factory=dict)
     concurrence: dict[str, Any] = field(default_factory=dict)
     bootstrap: dict[str, Any] = field(default_factory=dict)
+    causal_dag: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "claim": self.claim.to_dict(),
             "evidence_tier": self.evidence_tier,
             "tier_rationale": self.tier_rationale,
+            "causal_dag_approval": self.causal_dag,
             "estimate": self.estimate.to_dict(),
             "estimator_concurrence": self.concurrence,
             "bootstrap": self.bootstrap,
@@ -241,6 +243,7 @@ def build_evidence_object(
     negative_controls: dict[str, Any],
     concurrence: dict[str, Any],
     bootstrap: dict[str, Any],
+    causal_dag: dict[str, Any],
 ) -> EvidenceObject:
     stance, rationale = _decide_tier(
         estimate, propensity, calibration, evalue, placebo_alarmed, equity,
@@ -265,4 +268,5 @@ def build_evidence_object(
         negative_controls=negative_controls,
         concurrence=concurrence,
         bootstrap=bootstrap,
+        causal_dag=causal_dag,
     )

@@ -31,6 +31,8 @@ from .estimator.units import LogRiskRatio, RiskRatio
 from .equity.stratify import stratified_estimates
 from .honesty.evidence_object import build_evidence_object
 from .logging_setup import get_logger
+from .protocol.dag_approval import build_and_approve_dag
+from .protocol.dag_gate import require_certificate
 from .protocol.schema import protocol_from_config
 from .provenance import ArtifactLedger, build_provenance
 
@@ -67,9 +69,21 @@ def run(config_path: str | Path = "config.yaml") -> dict[str, Any]:
     token = sealed.outcome_token()  # minting REQUIRES the seal
     a_proto = ledger.add("protocol", sealed.to_dict(), (a_audit,))
 
+    # --- human DAG-approval gate (Harm c) ----------------------------------
+    # Refuses to proceed unless the causal graph passes structural checks AND the
+    # required human quorum has signed it. The certificate gates estimation below.
+    dag, dag_cert = build_and_approve_dag(sealed, cfg.get("dag", {}))
+    a_dag = ledger.add("dag_approval", dag_cert.to_dict(), (a_proto,))
+    log.info(
+        "DAG approved",
+        extra={"context": {"dag": dag.dag_hash()[:12], "signers": len(dag_cert.signatures)}},
+    )
+
     # --- cohort (time-zero enforced) ---------------------------------------
+    # The estimation path is structurally gated: no certificate, no cohort.
+    require_certificate(dag_cert, dag, sealed.protocol_hash)
     cohort = build_cohort(sealed, tables["patients"])
-    a_cohort = ledger.add("cohort", cohort.summary(), (a_proto,))
+    a_cohort = ledger.add("cohort", cohort.summary(), (a_dag,))
     log.info("cohort built", extra={"context": cohort.summary()})
 
     confounders = sealed.confounder_names()
@@ -207,6 +221,7 @@ def run(config_path: str | Path = "config.yaml") -> dict[str, Any]:
         negative_controls=negative_controls,
         concurrence=concurrence,
         bootstrap=bootstrap,
+        causal_dag=dag_cert.to_dict(),
     )
 
     a_evidence = ledger.add("evidence_object", evidence.to_dict(), (a_eq,))

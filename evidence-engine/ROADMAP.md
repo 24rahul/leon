@@ -10,13 +10,15 @@ Each stub maps to a specific harm in the three-harm model; filling it in is
 
 ## Phase 2 — defensibility of a single finding
 
-### DAG-approval gate — `stubs/dag_gate.py`  (Harm c)
-Make the causal graph an explicit, human-approved, hash-chained artifact the
-estimator refuses to run without. Require sign-off from ≥2 named reviewers
-(clinician + someone from an affected population). Verify acyclicity, that every
-declared confounder is a backdoor node, and that no adjustment set conditions on a
-collider or mediator. **This is the single largest current gap** — the prototype
-trusts the config-declared confounders.
+### DAG-approval gate — ✅ BUILT (`protocol/dag_gate.py`, `protocol/causal_dag.py`)  (Harm c)
+The causal graph is now an explicit, human-approved, hash-chained artifact the
+estimator refuses to run without. A `DagApprovalCertificate` (an unforgeable
+capability, like the outcome token) is minted only when (a) the DAG passes
+structural checks — acyclic, every declared confounder a backdoor common-cause,
+no adjustment on a mediator/collider — AND (b) ≥2 named reviewers including a
+clinician and an affected-population voice sign the exact DAG hash. `require_certificate`
+guards the estimation entry point. What remains irreducibly human: ensuring the
+*signed graph is correct*.
 
 ### Multi-estimator concurrence — `stubs/multi_estimator.py`  (Harm a)
 Run a panel of estimators with *different* failure modes (IPTW [built], propensity
