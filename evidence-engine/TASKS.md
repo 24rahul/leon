@@ -17,14 +17,14 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 - [x] Tests: 11 cases (acyclicity, backdoor, mediator/collider, quorum/role, unforgeable cert, e2e)
 - [x] Docs: README, DESIGN_CRITIQUE, ARCHITECTURE, ROADMAP, diagram un-stubbed
 
-## 2. Full estimator panel  (Harm a) — `estimator/{matching,gcomputation,tmle}.py`
-- [ ] Propensity-matching estimator (1:1 nearest-neighbour on logit PS, caliper)
-- [ ] G-computation / standardization (outcome model, marginal effect)
-- [ ] TMLE (targeted maximum likelihood; doubly robust + EIF inference)
-- [ ] Extend `concurrence.compare` to N estimators (pairwise agreement, max gap)
-- [ ] Wire panel into pipeline; concurrence gate over the full panel
-- [ ] Tests: each estimator recovers planted effect; panel concurrence agree/disagree
-- [ ] Docs + diagram update
+## 2. Full estimator panel  (Harm a) — `estimator/{matching,gcomputation,tmle}.py`  ✅ DONE
+- [x] Propensity-matching estimator (1:1 nearest-neighbour on logit PS, caliper)
+- [x] G-computation / standardization (outcome model, marginal effect, bootstrap SE)
+- [x] TMLE (targeted maximum likelihood; doubly robust + EIF inference)
+- [x] Extend `concurrence.compare` to N estimators (common-interval overlap, max gap)
+- [x] Wire panel into pipeline; concurrence gate over the full panel
+- [x] Tests: each estimator recovers planted effect; 5-estimator panel concurrence
+- [x] Docs + diagram update; multi_estimator stub removed
 
 ## 3. Validation harness (does the pipeline work?) — `validation/`  ✅ DONE
 - [x] `dgp.py`: data-generating process with a KNOWN marginal causal effect (MC-integrated truth)

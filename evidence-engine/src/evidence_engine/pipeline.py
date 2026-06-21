@@ -26,7 +26,10 @@ from .estimator import concurrence as conc
 from .estimator import refutation
 from .estimator.aipw import estimate_aipw
 from .estimator.evalue import evalue_for_rr
+from .estimator.gcomputation import estimate_gcomputation
 from .estimator.iptw import bootstrap_rr_ci, estimate_outcome, fit_propensity
+from .estimator.matching import estimate_matching
+from .estimator.tmle import estimate_tmle
 from .estimator.units import LogRiskRatio, RiskRatio
 from .equity.stratify import stratified_estimates
 from .honesty.evidence_object import build_evidence_object
@@ -105,14 +108,35 @@ def run(config_path: str | Path = "config.yaml") -> dict[str, Any]:
     primary = estimate_outcome(y_primary, a_vec, fit.weights)
     a_est = ledger.add("primary_estimate", primary.to_dict(), (a_ps,))
 
-    # --- doubly-robust AIPW (second leg of triangulation) ------------------
-    aipw = estimate_aipw(
-        cohort.frame.loc[keep], protocol.exposure, confounders,
-        y_primary, fit.propensity, no_impute=no_impute, seed=seed,
-    )
-    concurrence = conc.compare({"iptw": primary, "aipw": aipw}).to_dict()
+    # --- estimator panel (triangulation across distinct failure modes) -----
+    # IPTW (propensity-only), AIPW + TMLE (doubly robust), matching (discards
+    # unmatched), g-computation (outcome-model only). Agreement across these is far
+    # stronger than any single method. Each is fitted on the same kept cohort/PS.
+    kept_frame = cohort.frame.loc[keep]
+    panel = {
+        "iptw": primary,
+        "aipw": estimate_aipw(
+            kept_frame, protocol.exposure, confounders, y_primary, fit.propensity,
+            no_impute=no_impute, seed=seed,
+        ),
+        "matching": estimate_matching(
+            kept_frame, protocol.exposure, y_primary, fit.propensity,
+        ),
+        "gcomputation": estimate_gcomputation(
+            kept_frame, protocol.exposure, confounders, y_primary,
+            no_impute=no_impute, seed=seed,
+            n_boot=int(cfg["estimator"].get("gcomp_bootstrap_iterations", 200)),
+        ),
+        "tmle": estimate_tmle(
+            kept_frame, protocol.exposure, confounders, y_primary, fit.propensity,
+            no_impute=no_impute, seed=seed,
+        ),
+    }
+    concurrence = conc.compare(panel).to_dict()
     a_aipw = ledger.add(
-        "aipw_concurrence", {"aipw": aipw.to_dict(), "concurrence": concurrence}, (a_est,)
+        "estimator_panel",
+        {"panel": {k: v.to_dict() for k, v in panel.items()}, "concurrence": concurrence},
+        (a_est,),
     )
 
     # --- bootstrap CI (captures propensity-estimation uncertainty) ---------

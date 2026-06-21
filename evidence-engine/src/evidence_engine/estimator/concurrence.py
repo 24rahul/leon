@@ -58,17 +58,23 @@ def compare(named: dict[str, OutcomeEstimate]) -> Concurrence:
             note="Fewer than two estimable estimators; concurrence cannot be assessed.",
         )
 
-    keys = list(ok)
-    a, b = ok[keys[0]], ok[keys[1]]
-    # Narrowed by the `ok` filter (status == "ok" guarantees these are populated).
-    assert a.risk_ratio is not None and b.risk_ratio is not None
-    assert a.ci95_rr is not None and b.ci95_rr is not None
-    assert a.log_rr is not None and b.log_rr is not None
-    sign_agree = _sign(a.risk_ratio) == _sign(b.risk_ratio)
-    lo_a, hi_a = a.ci95_rr
-    lo_b, hi_b = b.ci95_rr
-    ci_overlap = not (hi_a < lo_b or hi_b < lo_a)
-    gap = abs(a.log_rr - b.log_rr)
+    keys = sorted(ok)
+    # The `ok` filter guarantees status == "ok"; assert the fields are populated so
+    # the type checker can narrow away the Optionals.
+    rrs, los, his, logs = [], [], [], []
+    for k in keys:
+        e = ok[k]
+        assert e.risk_ratio is not None and e.ci95_rr is not None and e.log_rr is not None
+        rrs.append(e.risk_ratio)
+        los.append(e.ci95_rr[0])
+        his.append(e.ci95_rr[1])
+        logs.append(e.log_rr)
+
+    sign_agree = len({_sign(r) for r in rrs}) == 1
+    # All N intervals share a common point iff the largest lower bound is below the
+    # smallest upper bound.
+    ci_overlap = max(los) <= min(his)
+    gap = max(logs) - min(logs)
     concordant = bool(sign_agree and ci_overlap)
 
     return Concurrence(
@@ -78,9 +84,11 @@ def compare(named: dict[str, OutcomeEstimate]) -> Concurrence:
         abs_log_rr_gap=round(float(gap), 5),
         concordant=concordant,
         note=(
-            f"{keys[0]} vs {keys[1]}: "
+            f"panel [{', '.join(keys)}]: "
             + ("concordant" if concordant else "DISCORDANT")
             + f" (sign_agree={'yes' if sign_agree else 'no'}, "
-            + f"ci_overlap={'yes' if ci_overlap else 'no'})."
+            + f"ci_overlap={'yes' if ci_overlap else 'no'}, "
+            + f"max_log_rr_gap={gap:.3f})."
         ),
     )
+

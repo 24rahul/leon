@@ -209,12 +209,12 @@ A critique that finds no faults is flattery. The real limitations, ranked:
    signed it. What code still cannot do is guarantee the *signed graph is correct* —
    that remains an irreducibly human judgement the gate makes explicit and
    auditable rather than silent.
-3. **Two estimators are better than one, but still not a panel.** IPTW and a
-   doubly-robust AIPW now triangulate (their concurrence is a live gate), which is
-   a real improvement over a single method. But full defensibility wants matching,
-   g-computation, and TMLE too — estimators with genuinely different failure modes
-   — and concurrence on the *calibrated* intervals. That broader panel is still
-   stubbed (`stubs/multi_estimator.py`).
+3. **A five-estimator panel now triangulates.** IPTW (propensity-only), AIPW and
+   TMLE (doubly robust), propensity matching, and g-computation (outcome-model
+   only) are estimated under the same sealed protocol and DAG, and their
+   concurrence is a live downgrade gate — an effect that survives all five methods
+   is far harder to dismiss than one from any single one. The remaining refinement
+   is to run concurrence on the *calibrated* intervals rather than the raw ones.
 4. **The demo runs on a synthetic surrogate** when the open MIMIC-IV demo is
    absent (e.g. offline). The surrogate has *planted, known* biases so the
    machinery is demonstrable and reproducible — but a planted bias the author

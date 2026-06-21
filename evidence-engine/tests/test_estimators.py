@@ -71,3 +71,68 @@ def test_bootstrap_ci_is_deterministic_and_excludes_null():
     assert b1 == b2  # same seed -> identical
     assert b1["status"] == "ok"
     assert b1["ci95_rr"][0] > 1.0  # planted positive effect excludes the null
+
+
+# --- full estimator panel: matching, g-computation, TMLE -------------------
+def _fit_kept(df):
+    from evidence_engine.estimator.iptw import fit_propensity
+
+    fit = fit_propensity(df, "x", ["age", "sev"], no_impute=[], trim=(0.02, 0.98), seed=0)
+    return fit, fit.keep_mask
+
+
+def test_matching_recovers_direction():
+    from evidence_engine.estimator.matching import estimate_matching
+
+    df, y = _synthetic_confounded()
+    fit, keep = _fit_kept(df)
+    est = estimate_matching(df.loc[keep], "x", y[keep], fit.propensity)
+    assert est.status == "ok"
+    assert est.risk_ratio > 1.0
+
+
+def test_gcomputation_recovers_direction_and_is_deterministic():
+    from evidence_engine.estimator.gcomputation import estimate_gcomputation
+
+    df, y = _synthetic_confounded()
+    fit, keep = _fit_kept(df)
+    kw = dict(no_impute=[], seed=0, n_boot=60)
+    e1 = estimate_gcomputation(df.loc[keep], "x", ["age", "sev"], y[keep], **kw)
+    e2 = estimate_gcomputation(df.loc[keep], "x", ["age", "sev"], y[keep], **kw)
+    assert e1.status == "ok" and e1.risk_ratio > 1.0
+    assert e1.to_dict() == e2.to_dict()  # seeded bootstrap is reproducible
+
+
+def test_tmle_recovers_direction_with_eif_se():
+    from evidence_engine.estimator.tmle import estimate_tmle
+
+    df, y = _synthetic_confounded()
+    fit, keep = _fit_kept(df)
+    est = estimate_tmle(
+        df.loc[keep], "x", ["age", "sev"], y[keep], fit.propensity, no_impute=[], seed=0
+    )
+    assert est.status == "ok"
+    assert est.risk_ratio > 1.0
+    assert est.se_log_rr is not None and est.se_log_rr > 0
+
+
+def test_panel_concurrence_over_five_estimators():
+    from evidence_engine.estimator.aipw import estimate_aipw
+    from evidence_engine.estimator.gcomputation import estimate_gcomputation
+    from evidence_engine.estimator.matching import estimate_matching
+    from evidence_engine.estimator.tmle import estimate_tmle
+
+    df, y = _synthetic_confounded()
+    fit, keep = _fit_kept(df)
+    yk, ak = y[keep], df["x"].to_numpy()[keep]
+    kf = df.loc[keep]
+    panel = {
+        "iptw": estimate_outcome(yk, ak, fit.weights),
+        "aipw": estimate_aipw(kf, "x", ["age", "sev"], yk, fit.propensity, no_impute=[], seed=0),
+        "matching": estimate_matching(kf, "x", yk, fit.propensity),
+        "gcomputation": estimate_gcomputation(kf, "x", ["age", "sev"], yk, no_impute=[], seed=0, n_boot=60),
+        "tmle": estimate_tmle(kf, "x", ["age", "sev"], yk, fit.propensity, no_impute=[], seed=0),
+    }
+    res = compare(panel)
+    assert res.sign_agree is True  # all five agree on direction
+    assert res.concordant is True

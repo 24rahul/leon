@@ -17,6 +17,7 @@ def _fast_config(tmp_path: Path) -> Path:
     base["data"]["synthetic_n_patients"] = 1200
     base["estimator"]["negative_control_panel_size"] = 15
     base["estimator"]["bootstrap_iterations"] = 50
+    base["estimator"]["gcomp_bootstrap_iterations"] = 40
     base["estimator"]["refuter_simulations"] = 8
     base["run"]["output_dir"] = str(tmp_path / "out")
     p = tmp_path / "config.yaml"

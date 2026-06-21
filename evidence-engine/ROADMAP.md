@@ -20,11 +20,13 @@ clinician and an affected-population voice sign the exact DAG hash. `require_cer
 guards the estimation entry point. What remains irreducibly human: ensuring the
 *signed graph is correct*.
 
-### Multi-estimator concurrence — `stubs/multi_estimator.py`  (Harm a)
-Run a panel of estimators with *different* failure modes (IPTW [built], propensity
-matching, g-computation/standardization, doubly-robust AIPW/TMLE) under the same
-sealed protocol and DAG. Report sign/interval agreement and add a concurrence
-downgrade as a new pessimistic gate in `honesty/evidence_object.py`.
+### Multi-estimator concurrence — ✅ BUILT (`estimator/{iptw,aipw,matching,gcomputation,tmle}.py`)  (Harm a)
+A five-estimator panel with *different* failure modes — IPTW (propensity-only),
+AIPW and TMLE (doubly robust), propensity matching, and g-computation
+(outcome-model only) — runs under the same sealed protocol and DAG.
+`estimator/concurrence.py` reports sign/interval agreement across all of them and
+feeds a pessimistic downgrade gate in `honesty/evidence_object.py`. Remaining
+refinement: concurrence on the *calibrated* intervals rather than the raw ones.
 
 ## Phase 3 — defensibility of the method and across populations
 

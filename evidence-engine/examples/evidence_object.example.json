@@ -1,5 +1,5 @@
 {
-  "artifact_root": "5bfe33e29e58db83babea8bdb4cadcbd2444904a806ed0a97bb1e1061b2a459c",
+  "artifact_root": "8d48826f79aeae0e7e21b57465d02ebf6ecdc827e8041fdcc388655fd6f0641d",
   "assumptions": [
     {
       "assumption": "Exchangeability (no unmeasured confounding given the specified covariates).",
@@ -199,7 +199,7 @@
     "status": "ok"
   },
   "estimator_concurrence": {
-    "abs_log_rr_gap": 0.02305,
+    "abs_log_rr_gap": 0.02622,
     "ci_overlap": true,
     "concordant": true,
     "estimators": {
@@ -217,6 +217,20 @@
         "se_log_rr": 0.08217,
         "status": "ok"
       },
+      "gcomputation": {
+        "ci95_rr": [
+          1.2855,
+          1.7508
+        ],
+        "log_rr": 0.39154,
+        "reason": "standardization, 200 bootstrap resamples",
+        "risk_control": null,
+        "risk_difference": null,
+        "risk_ratio": 1.47926,
+        "risk_treated": null,
+        "se_log_rr": 0.07838,
+        "status": "ok"
+      },
       "iptw": {
         "ci95_rr": [
           1.2242,
@@ -230,9 +244,37 @@
         "risk_treated": 0.16509,
         "se_log_rr": 0.08318,
         "status": "ok"
+      },
+      "matching": {
+        "ci95_rr": [
+          1.2073,
+          1.7511
+        ],
+        "log_rr": 0.37431,
+        "reason": "1475 matched pairs (caliper=0.113 on logit PS)",
+        "risk_control": 0.11051,
+        "risk_difference": 0.05017,
+        "risk_ratio": 1.45399,
+        "risk_treated": 0.16068,
+        "se_log_rr": 0.09486,
+        "status": "ok"
+      },
+      "tmle": {
+        "ci95_rr": [
+          1.2552,
+          1.7316
+        ],
+        "log_rr": 0.38817,
+        "reason": "targeted (epsilon=-0.000973)",
+        "risk_control": 0.11197,
+        "risk_difference": 0.05311,
+        "risk_ratio": 1.47429,
+        "risk_treated": 0.16508,
+        "se_log_rr": 0.08207,
+        "status": "ok"
       }
     },
-    "note": "iptw vs aipw: concordant (sign_agree=yes, ci_overlap=yes).",
+    "note": "panel [aipw, gcomputation, iptw, matching, tmle]: concordant (sign_agree=yes, ci_overlap=yes, max_log_rr_gap=0.026).",
     "sign_agree": true
   },
   "evidence_tier": "HYPOTHESIS_GENERATING",
@@ -371,68 +413,68 @@
           "stage": "primary_estimate"
         },
         {
-          "artifact_id": "f0cbbfcebc03c0aba6e922683095dea08cc491da31cbc91cc2f0d73bf532cf2a",
+          "artifact_id": "834709e2c0fc709868608a02e4d43ce75d8f7b45cc18aaa2d169c025ade6522b",
           "parents": [
             "16d5e080e08eedc07071a35304f8b3daf461bab3be1a5284547459e93cb3a8ce"
           ],
-          "payload_digest": "65fb305b5ef6c42e4a081a2e1e75a046258bd1899e5bbf9ad972a12fd29584b0",
-          "stage": "aipw_concurrence"
+          "payload_digest": "7858504c951f96fe958133c997796c9e375fdb8fe87c25a13c1b7119c50b4b81",
+          "stage": "estimator_panel"
         },
         {
-          "artifact_id": "3cc660778756c0d1a211b3a15a5d46112a3123912984cf708571de0d59da7b91",
+          "artifact_id": "42ea1b6aaffe22f05e3ef25277f0669369599977cfde831080cd637f815e718c",
           "parents": [
-            "f0cbbfcebc03c0aba6e922683095dea08cc491da31cbc91cc2f0d73bf532cf2a"
+            "834709e2c0fc709868608a02e4d43ce75d8f7b45cc18aaa2d169c025ade6522b"
           ],
           "payload_digest": "db65e9e5adf0ce4857904f99a1e633a609b7131f4bcac98fec299debb0fab266",
           "stage": "bootstrap"
         },
         {
-          "artifact_id": "f69efb0ee87c3d21fac59ec96a9d13148eff6a1bbe45eec6426b3fe53a41e6be",
+          "artifact_id": "d4cd7fb8b1587fcc529b7b3ee5a7bf57510fbdf24f84f98c48dbfbdbbe103d61",
           "parents": [
-            "3cc660778756c0d1a211b3a15a5d46112a3123912984cf708571de0d59da7b91"
+            "42ea1b6aaffe22f05e3ef25277f0669369599977cfde831080cd637f815e718c"
           ],
           "payload_digest": "720153464f952a238e2e2031e18016a3377ba7965e949f29a7e733d93152b1a0",
           "stage": "calibration"
         },
         {
-          "artifact_id": "4133f6a94434d47ed98aee2eae4ce4613db1782180d0e1ca905a777222243825",
+          "artifact_id": "1b58cb1c1b6544fe18b6ca418c5a561d5dc89ab482a6af1ef9a909c969316c53",
           "parents": [
-            "f69efb0ee87c3d21fac59ec96a9d13148eff6a1bbe45eec6426b3fe53a41e6be"
+            "d4cd7fb8b1587fcc529b7b3ee5a7bf57510fbdf24f84f98c48dbfbdbbe103d61"
           ],
           "payload_digest": "21d7daf8184067330ea17fac4eafd0e88076b3cc1e45dd39c400f1952b58e35d",
           "stage": "evalue"
         },
         {
-          "artifact_id": "cf88e8766d2982e1023a60807d6c780df389f8b9b567c4d788ed2be64289f088",
+          "artifact_id": "ae679258f2c77ed3ed6c3ca6e52f052453b67bc44f099cd2b44488befdaf14bb",
           "parents": [
-            "4133f6a94434d47ed98aee2eae4ce4613db1782180d0e1ca905a777222243825"
+            "1b58cb1c1b6544fe18b6ca418c5a561d5dc89ab482a6af1ef9a909c969316c53"
           ],
           "payload_digest": "47f012f67526eceb448a660621b272ffcdb108c4bd692e042d776802989784e3",
           "stage": "refutation"
         },
         {
-          "artifact_id": "dea07e2ee7747e652405c9bb4e4d0404e18003b0a83c9bea7bd2eacf6c04749b",
+          "artifact_id": "1ccf30eb71f467a0109f0859b0fee35b7055ba53c6848a98b3eabe6ef7db52cc",
           "parents": [
-            "cf88e8766d2982e1023a60807d6c780df389f8b9b567c4d788ed2be64289f088"
+            "ae679258f2c77ed3ed6c3ca6e52f052453b67bc44f099cd2b44488befdaf14bb"
           ],
           "payload_digest": "decc89d26d367bd40b76bbb7b382e7bbd3992a5c8b57a73041f4cb0e320866e7",
           "stage": "equity"
         },
         {
-          "artifact_id": "5bfe33e29e58db83babea8bdb4cadcbd2444904a806ed0a97bb1e1061b2a459c",
+          "artifact_id": "8d48826f79aeae0e7e21b57465d02ebf6ecdc827e8041fdcc388655fd6f0641d",
           "parents": [
-            "dea07e2ee7747e652405c9bb4e4d0404e18003b0a83c9bea7bd2eacf6c04749b"
+            "1ccf30eb71f467a0109f0859b0fee35b7055ba53c6848a98b3eabe6ef7db52cc"
           ],
-          "payload_digest": "0398b3871ec060d7c3b41fcfad9cd4efb92051b3f9bf32e9d3d9314ab849442b",
+          "payload_digest": "87c9f17cdb2e667ceec7be1be805d1c3ef9efea0076d1cb763a23ce838135640",
           "stage": "evidence_object"
         }
       ],
-      "root": "5bfe33e29e58db83babea8bdb4cadcbd2444904a806ed0a97bb1e1061b2a459c"
+      "root": "8d48826f79aeae0e7e21b57465d02ebf6ecdc827e8041fdcc388655fd6f0641d"
     },
-    "config_hash": "19d6724070180c91eca333afa66946a314fd78111996efde2a4bdb0e68610193",
+    "config_hash": "fe3154950852b3d1e05cbbb38eef064211f13530f5eaec13d817f9345a5f7b6b",
     "data_version": "synthetic-surrogate-v1::n=4000::seed=20240617",
     "engine_version": "0.1.0",
-    "git_commit": "adcf89a540d22addbcb814dc23802142750e4243",
+    "git_commit": "b1df91b679e3d635fdc9f6d74c75099003d97809",
     "protocol_hash": "8ad9e3e519274430d7cd08a44fb46fdb8176cddea8f077141158209fca379126",
     "seed": 20240617
   },

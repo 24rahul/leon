@@ -90,7 +90,8 @@ estimator:
   method: iptw                         # inverse-probability-of-treatment weighting
   ps_model: logistic
   trim_propensity: [0.02, 0.98]        # trim extreme weights; fail loud if cohort collapses
-  bootstrap_iterations: 500
+  bootstrap_iterations: 500            # IPTW propensity-aware bootstrap CI
+  gcomp_bootstrap_iterations: 200      # g-computation standardization bootstrap CI
   evalue: true
   # Size of the negative-control panel used for empirical-null calibration
   # (Schuemie et al.). Below `min_negative_controls` the engine refuses to

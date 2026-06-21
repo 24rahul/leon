@@ -23,8 +23,8 @@ flowchart TB
       COH["Cohort build<br/>time-zero fixed ⇒ no immortal-time bias"]:::stage
       PS["Propensity fit ONCE<br/>SMD balance · explicit missingness · trim"]:::stage
       IPTW["IPTW estimate<br/>+ propensity-aware bootstrap CI"]:::stage
-      AIPW["Doubly-robust AIPW<br/>efficient-influence SE"]:::stage
-      CONC{{"Concurrence gate<br/>IPTW vs AIPW: sign + CI overlap"}}:::gate
+      AIPW["Estimator panel<br/>IPTW · AIPW · TMLE · matching · g-computation"]:::stage
+      CONC{{"Concurrence gate<br/>5 estimators: sign + common interval"}}:::gate
       NC["Negative-control panel →<br/>empirical-null calibration (Schuemie)"]:::stage
       EVAL["E-value on the CALIBRATED estimate<br/>(RiskRatio vs LogRiskRatio: mypy-enforced)"]:::stage
       REF["dowhy refuters<br/>placebo · random cause · subset"]:::stage

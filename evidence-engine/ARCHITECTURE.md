@@ -31,7 +31,10 @@ src/evidence_engine/
 ├── estimator/
 │   ├── iptw.py                Stabilized IPTW; balance (SMD); explicit missingness; bootstrap CI.
 │   ├── aipw.py                Doubly-robust AIPW with efficient-influence-function SE.
-│   ├── concurrence.py         IPTW-vs-AIPW agreement (sign + interval overlap) → downgrade gate.
+│   ├── matching.py            1:1 caliper PS matching (a distinct failure mode).
+│   ├── gcomputation.py        Standardization / g-formula (outcome-model only); bootstrap SE.
+│   ├── tmle.py                Targeted MLE; doubly robust with efficient-influence SE.
+│   ├── concurrence.py         N-estimator agreement (sign + common interval) → downgrade gate.
 │   ├── calibration.py         Empirical-null calibration from the negative-control panel (Schuemie).
 │   ├── refutation.py          dowhy falsification probes (placebo / random cause / subset).
 │   ├── evalue.py              E-value (VanderWeele & Ding), exact, point + CI limit.
@@ -51,8 +54,7 @@ src/evidence_engine/
 │   └── report.py              Markdown report + operating-characteristics figure.
 │
 └── stubs/                     Typed interfaces + NotImplementedError (see ROADMAP.md).
-    ├── multi_estimator.py     Multi-estimator concurrence       (Phase 2, Harm a — partial).
-    ├── rct_benchmark.py       RCT-benchmark harness             (Phase 3).
+    ├── rct_benchmark.py       RCT-benchmark replay              (Phase 3).
     └── replication.py         Cross-dataset replication         (Phase 3, Harm b).
 ```
 

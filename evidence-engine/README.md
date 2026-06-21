@@ -196,8 +196,10 @@ placed in this table, it does not belong here.
   diagnostics, explicit missingness handling, and a **propensity-aware bootstrap
   CI**) plus a **doubly-robust AIPW** estimator with an efficient-influence-function
   standard error.
-- **Cross-estimator concurrence** (IPTW vs AIPW) wired as a live downgrade gate —
-  genuine two-method triangulation (the broader panel is still stubbed).
+- A **five-estimator panel** with genuinely different failure modes — IPTW
+  (propensity-only), AIPW and TMLE (doubly robust, EIF inference), propensity
+  matching, and g-computation (outcome-model only) — and a **concurrence gate**
+  over all of them: material disagreement downgrades the tier.
 - **Negative-control empirical-null calibration** (Schuemie et al.) over a control
   panel — not merely a refutation test (see `DESIGN_CRITIQUE.md` §1.3).
 - **dowhy refuters** as falsification probes (placebo, random common cause,
@@ -213,9 +215,7 @@ placed in this table, it does not belong here.
 **Stubbed (interfaces defined, `NotImplementedError`, listed in
 [`ROADMAP.md`](ROADMAP.md)) — these are NOT complete:**
 
-- Multi-estimator concurrence — **partially built**: IPTW-vs-AIPW is live;
-  matching / g-computation / TMLE remain stubbed (`stubs/multi_estimator.py`)
-- RCT-benchmark harness (`stubs/rct_benchmark.py`)
+- RCT-benchmark replay against specific published trials (`stubs/rct_benchmark.py`)
 - Cross-dataset replication (`stubs/replication.py`)
 
 ---
