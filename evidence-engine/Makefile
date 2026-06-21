@@ -4,7 +4,7 @@
 PY := .venv/bin/python
 PIP := .venv/bin/pip
 
-.PHONY: help setup run test typecheck reproduce diagram clean
+.PHONY: help setup run test typecheck reproduce diagram validate clean
 
 help:
 	@echo "make setup      - create venv and install pinned dependencies"
@@ -13,6 +13,7 @@ help:
 	@echo "make typecheck  - run mypy over the package"
 	@echo "make reproduce  - run twice and assert byte-identical evidence output"
 	@echo "make diagram    - render docs/dataflow.mmd to docs/dataflow.png (needs npx)"
+	@echo "make validate   - Monte Carlo proof the pipeline recovers known truth"
 	@echo "make clean      - remove generated outputs and caches"
 
 setup:
@@ -42,6 +43,9 @@ diagram:
 	@printf '{"args":["--no-sandbox","--disable-setuid-sandbox"]}' > /tmp/pptr.json
 	npx -y @mermaid-js/mermaid-cli -i docs/dataflow.mmd -o docs/dataflow.png \
 		-b white -s 2 -p /tmp/pptr.json
+
+validate:
+	$(PY) -m evidence_engine.validation
 
 clean:
 	rm -rf outputs/*.json outputs/_run*.json .pytest_cache **/__pycache__

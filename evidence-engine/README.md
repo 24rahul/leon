@@ -42,6 +42,43 @@ Source: [`docs/dataflow.mmd`](docs/dataflow.mmd) (Mermaid). Regenerate with
 
 ---
 
+## Does it actually work? (data-driven validation)
+
+Unit tests check that components do what their code says; they cannot tell you
+whether the *causal machine returns the right answer*. So the engine ships a
+**Monte Carlo simulation study against known ground truth** — because the
+data-generating process is ours, the true marginal causal effect is known exactly,
+and we can measure the pipeline's operating characteristics. Run it with
+`make validate` (writes `outputs/validation_report.md`, a metrics JSON, and the
+figure below; exits non-zero if any check fails).
+
+![Operating characteristics](docs/validation_plots.png)
+
+Across true risk ratios from 1.0 to ~2.0, 300 replications each (full results in
+[`examples/validation_report.md`](examples/validation_report.md)):
+
+| property | crude (naive analyst) | IPTW | AIPW | want |
+|---|---:|---:|---:|---|
+| bias (log RR) | **+0.40** | +0.003 | +0.002 | ≈ 0 |
+| 95% CI coverage | **0.00** | 0.95–0.97 | 0.93–0.97 | ≈ 0.95 |
+| Type I error at RR=1 | **1.00** | 0.043 | 0.070 | ≈ 0.05 |
+| power at RR≈1.9 | — | 1.00 | 1.00 | high |
+
+The crude estimator is the control group — a naive analyst who ignores
+confounding — and it is catastrophically biased with a 100% false-positive rate.
+The engine's IPTW and AIPW estimators recover the true effect with honest
+intervals and calibrated Type I error. Separately, when a negative-control panel
+is subjected to an **unmeasured** confounder the estimator never sees, raw interval
+coverage of the true null collapses to **0.42**, and empirical-null calibration
+restores it to **0.96** — evidence the calibration machinery corrects residual
+confounding, not just sampling noise.
+
+This is the sense in which the pipeline "works": not that it always finds an
+effect, but that *when there is one it recovers it, when there isn't it stays
+quiet, and its stated uncertainty is true*.
+
+---
+
 ## What this is (and is not)
 
 - It **is** a runnable Phase-0 data-bias audit plus a Phase-1 target-trial

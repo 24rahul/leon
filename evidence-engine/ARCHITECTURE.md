@@ -45,6 +45,11 @@ src/evidence_engine/
 │   ├── vocabulary_guard.py    Defense-in-depth blacklist over every serialized string.
 │   └── evidence_object.py     Pessimistic-gate tier decision; the one emitted result.
 │
+├── validation/                Data-driven proof the pipeline recovers known truth.
+│   ├── dgp.py                 Data-generating process with a KNOWN marginal causal effect.
+│   ├── simulation.py          Monte Carlo operating characteristics + pass/fail verdict.
+│   └── report.py              Markdown report + operating-characteristics figure.
+│
 └── stubs/                     Typed interfaces + NotImplementedError (see ROADMAP.md).
     ├── multi_estimator.py     Multi-estimator concurrence       (Phase 2, Harm a — partial).
     ├── rct_benchmark.py       RCT-benchmark harness             (Phase 3).
@@ -80,6 +85,7 @@ src/evidence_engine/
 | Empirical-null calibration + fail-loud | `tests/test_calibration.py` |
 | AIPW recovery, concurrence, deterministic bootstrap | `tests/test_estimators.py` |
 | DAG structural checks + unforgeable approval certificate | `tests/test_dag_gate.py` |
+| Recovery of known truth, confounding removal, calibration repair | `tests/test_validation.py` |
 | Provenance ledger chaining + tamper detection | `tests/test_provenance.py` |
 | Restricted-data guard, end-to-end, byte-reproducibility | `tests/test_pipeline.py` |
 ```

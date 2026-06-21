@@ -1,0 +1,262 @@
+{
+  "calibration": {
+    "coverage_calibrated": 0.96,
+    "coverage_raw": 0.422,
+    "mean_systematic_bias_mu": 0.1655,
+    "n_control_estimates": 500
+  },
+  "overall_pass": true,
+  "recovery": [
+    {
+      "metrics": {
+        "aipw": {
+          "bias_log": 0.00219,
+          "coverage": 0.93,
+          "estimator": "aipw",
+          "mean_ci_width": 0.2857,
+          "n_ok": 300,
+          "reject_rate": 0.07,
+          "rmse_log": 0.07529
+        },
+        "crude": {
+          "bias_log": 0.40452,
+          "coverage": 0.0,
+          "estimator": "crude",
+          "mean_ci_width": 0.2606,
+          "n_ok": 300,
+          "reject_rate": 1.0,
+          "rmse_log": 0.41036
+        },
+        "iptw": {
+          "bias_log": 0.00292,
+          "coverage": 0.9567,
+          "estimator": "iptw",
+          "mean_ci_width": 0.3179,
+          "n_ok": 300,
+          "reject_rate": 0.0433,
+          "rmse_log": 0.07687
+        }
+      },
+      "sign_concordance_iptw_aipw": 0.92,
+      "true_log_rr": 0.0,
+      "true_rr": 1.0
+    },
+    {
+      "metrics": {
+        "aipw": {
+          "bias_log": -0.00177,
+          "coverage": 0.93,
+          "estimator": "aipw",
+          "mean_ci_width": 0.2652,
+          "n_ok": 300,
+          "reject_rate": 0.8967,
+          "rmse_log": 0.07134
+        },
+        "crude": {
+          "bias_log": 0.39902,
+          "coverage": 0.0,
+          "estimator": "crude",
+          "mean_ci_width": 0.2439,
+          "n_ok": 300,
+          "reject_rate": 1.0,
+          "rmse_log": 0.40487
+        },
+        "iptw": {
+          "bias_log": -0.00061,
+          "coverage": 0.9533,
+          "estimator": "iptw",
+          "mean_ci_width": 0.2917,
+          "n_ok": 300,
+          "reject_rate": 0.84,
+          "rmse_log": 0.07317
+        }
+      },
+      "sign_concordance_iptw_aipw": 1.0,
+      "true_log_rr": 0.22272,
+      "true_rr": 1.24947
+    },
+    {
+      "metrics": {
+        "aipw": {
+          "bias_log": 0.0008,
+          "coverage": 0.9667,
+          "estimator": "aipw",
+          "mean_ci_width": 0.2485,
+          "n_ok": 300,
+          "reject_rate": 1.0,
+          "rmse_log": 0.05736
+        },
+        "crude": {
+          "bias_log": 0.40134,
+          "coverage": 0.0,
+          "estimator": "crude",
+          "mean_ci_width": 0.2311,
+          "n_ok": 300,
+          "reject_rate": 1.0,
+          "rmse_log": 0.40492
+        },
+        "iptw": {
+          "bias_log": 0.00253,
+          "coverage": 0.97,
+          "estimator": "iptw",
+          "mean_ci_width": 0.2693,
+          "n_ok": 300,
+          "reject_rate": 1.0,
+          "rmse_log": 0.06066
+        }
+      },
+      "sign_concordance_iptw_aipw": 1.0,
+      "true_log_rr": 0.46075,
+      "true_rr": 1.58526
+    },
+    {
+      "metrics": {
+        "aipw": {
+          "bias_log": -0.0047,
+          "coverage": 0.9433,
+          "estimator": "aipw",
+          "mean_ci_width": 0.2373,
+          "n_ok": 300,
+          "reject_rate": 1.0,
+          "rmse_log": 0.05973
+        },
+        "crude": {
+          "bias_log": 0.38909,
+          "coverage": 0.0,
+          "estimator": "crude",
+          "mean_ci_width": 0.2218,
+          "n_ok": 300,
+          "reject_rate": 1.0,
+          "rmse_log": 0.39278
+        },
+        "iptw": {
+          "bias_log": -0.00321,
+          "coverage": 0.95,
+          "estimator": "iptw",
+          "mean_ci_width": 0.254,
+          "n_ok": 300,
+          "reject_rate": 1.0,
+          "rmse_log": 0.06313
+        }
+      },
+      "sign_concordance_iptw_aipw": 1.0,
+      "true_log_rr": 0.65682,
+      "true_rr": 1.92865
+    }
+  ],
+  "verdict": {
+    "checks": [
+      {
+        "check": "iptw unbiased @RR=1.00",
+        "detail": "bias(log)=+0.003 (\u22640.07)",
+        "pass": true
+      },
+      {
+        "check": "iptw coverage @RR=1.00",
+        "detail": "coverage=0.957 in [0.9,0.98]",
+        "pass": true
+      },
+      {
+        "check": "aipw unbiased @RR=1.00",
+        "detail": "bias(log)=+0.002 (\u22640.07)",
+        "pass": true
+      },
+      {
+        "check": "aipw coverage @RR=1.00",
+        "detail": "coverage=0.930 in [0.9,0.98]",
+        "pass": true
+      },
+      {
+        "check": "iptw unbiased @RR=1.25",
+        "detail": "bias(log)=-0.001 (\u22640.07)",
+        "pass": true
+      },
+      {
+        "check": "iptw coverage @RR=1.25",
+        "detail": "coverage=0.953 in [0.9,0.98]",
+        "pass": true
+      },
+      {
+        "check": "aipw unbiased @RR=1.25",
+        "detail": "bias(log)=-0.002 (\u22640.07)",
+        "pass": true
+      },
+      {
+        "check": "aipw coverage @RR=1.25",
+        "detail": "coverage=0.930 in [0.9,0.98]",
+        "pass": true
+      },
+      {
+        "check": "iptw unbiased @RR=1.59",
+        "detail": "bias(log)=+0.003 (\u22640.07)",
+        "pass": true
+      },
+      {
+        "check": "iptw coverage @RR=1.59",
+        "detail": "coverage=0.970 in [0.9,0.98]",
+        "pass": true
+      },
+      {
+        "check": "aipw unbiased @RR=1.59",
+        "detail": "bias(log)=+0.001 (\u22640.07)",
+        "pass": true
+      },
+      {
+        "check": "aipw coverage @RR=1.59",
+        "detail": "coverage=0.967 in [0.9,0.98]",
+        "pass": true
+      },
+      {
+        "check": "iptw unbiased @RR=1.93",
+        "detail": "bias(log)=-0.003 (\u22640.07)",
+        "pass": true
+      },
+      {
+        "check": "iptw coverage @RR=1.93",
+        "detail": "coverage=0.950 in [0.9,0.98]",
+        "pass": true
+      },
+      {
+        "check": "aipw unbiased @RR=1.93",
+        "detail": "bias(log)=-0.005 (\u22640.07)",
+        "pass": true
+      },
+      {
+        "check": "aipw coverage @RR=1.93",
+        "detail": "coverage=0.943 in [0.9,0.98]",
+        "pass": true
+      },
+      {
+        "check": "iptw Type I error",
+        "detail": "\u03b1\u0302=0.043 (\u22640.1)",
+        "pass": true
+      },
+      {
+        "check": "aipw Type I error",
+        "detail": "\u03b1\u0302=0.070 (\u22640.1)",
+        "pass": true
+      },
+      {
+        "check": "iptw power @RR=1.93",
+        "detail": "power=1.000 (\u22650.7)",
+        "pass": true
+      },
+      {
+        "check": "aipw power @RR=1.93",
+        "detail": "power=1.000 (\u22650.7)",
+        "pass": true
+      },
+      {
+        "check": "confounding actually removed (crude vs IPTW)",
+        "detail": "|crude bias|=0.405 vs |IPTW bias|=0.003 (gap\u22650.07)",
+        "pass": true
+      },
+      {
+        "check": "calibration restores coverage under residual confounding",
+        "detail": "raw=0.422 \u2192 calibrated=0.960",
+        "pass": true
+      }
+    ],
+    "overall_pass": true
+  }
+}

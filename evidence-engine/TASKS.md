@@ -26,12 +26,15 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 - [ ] Tests: each estimator recovers planted effect; panel concurrence agree/disagree
 - [ ] Docs + diagram update
 
-## 3. RCT-benchmark harness — `validation/rct_benchmark.py`
-- [ ] Define benchmark cases (known RCT direction/effect) over the synthetic surrogate
-- [ ] Run the sealed-protocol pipeline per case; measure sign-concordance + interval coverage
-- [ ] Produce a method-level reliability statistic that can feed the tier
-- [ ] Tests + a `make benchmark` target
-- [ ] Docs
+## 3. Validation harness (does the pipeline work?) — `validation/`  ✅ DONE
+- [x] `dgp.py`: data-generating process with a KNOWN marginal causal effect (MC-integrated truth)
+- [x] `simulation.py`: recovery study (bias, RMSE, coverage, Type I error, power, concordance)
+- [x] Crude vs IPTW vs AIPW comparison — proves confounding is actually removed
+- [x] Calibration study: unmeasured confounder → leave-one-out empirical-null coverage repair
+- [x] `report.py`: markdown report + 4-panel operating-characteristics figure
+- [x] CLI `python -m evidence_engine.validation` (non-zero exit on failure) + `make validate`
+- [x] Tests (recovery, calibration, full verdict) + README "Does it actually work?" section
+- [ ] FOLLOW-UP: replay specific published RCT results (RCT-DUPLICATE-style external validity)
 
 ## 4. Cross-dataset replication  (Harm b) — `validation/replication.py`
 - [ ] Run identical sealed protocol against ≥2 independent synthetic sources (each guarded)

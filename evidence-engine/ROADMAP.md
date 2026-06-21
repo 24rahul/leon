@@ -28,10 +28,19 @@ downgrade as a new pessimistic gate in `honesty/evidence_object.py`.
 
 ## Phase 3 — defensibility of the method and across populations
 
-### RCT-benchmark harness — `stubs/rct_benchmark.py`
-Replay questions with known randomized answers (RCT-DUPLICATE / OHDSI LEGEND in
-spirit); measure sign-concordance and interval coverage to produce a
-*method-level* reliability statement that feeds the evidence tier.
+### Validation harness — ✅ BUILT (`validation/`)
+A Monte Carlo simulation study against a data-generating process with a KNOWN
+marginal causal effect. Measures bias, CI coverage, Type I error, power, and
+estimator concordance for IPTW and AIPW (vs a crude estimator as the confounded
+control), and shows empirical-null calibration restoring negative-control coverage
+under unmeasured confounding. `make validate` produces a report, a metrics JSON, an
+operating-characteristics figure, and a pass/fail verdict (non-zero exit on fail).
+
+### RCT-benchmark replay (follow-up) — `stubs/rct_benchmark.py`
+Extends the validation harness to replay *specific published* randomized answers
+(RCT-DUPLICATE / OHDSI LEGEND in spirit) and feed a method-level reliability
+statement into the evidence tier. The simulation harness above already provides the
+operating-characteristics machinery this would reuse.
 
 ### Cross-dataset replication — `stubs/replication.py`  (Harm b)
 Execute the identical sealed protocol against ≥2 independent OMOP sources (each
