@@ -26,6 +26,8 @@ from __future__ import annotations
 import math
 from dataclasses import asdict, dataclass
 
+from .units import RiskRatio
+
 
 @dataclass(frozen=True)
 class EValue:
@@ -50,9 +52,9 @@ def _evalue_rr_scalar(rr: float) -> float:
 
 
 def evalue_for_rr(
-    rr: float,
-    ci_low: float | None = None,
-    ci_high: float | None = None,
+    rr: RiskRatio,
+    ci_low: RiskRatio | None = None,
+    ci_high: RiskRatio | None = None,
 ) -> EValue:
     """E-value for a risk ratio and (optionally) its confidence interval."""
     point = _evalue_rr_scalar(rr)

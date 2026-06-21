@@ -128,6 +128,22 @@ class ArtifactLedger:
             raise ValueError("Ledger is empty; nothing to root.")
         return self.artifacts[-1].artifact_id
 
+    def verify(self) -> bool:
+        """Recompute every artifact id from its recorded digest + parents.
+
+        This proves the chain's *linking* integrity: tampering with any id, parent
+        pointer, or payload digest is detected. It does NOT re-derive payloads from
+        scratch — that stronger guarantee (full reproduction) is obtained by
+        re-running the pipeline and comparing roots (see `make reproduce`).
+        """
+        for a in self.artifacts:
+            recomputed = canonical_hash(
+                {"stage": a.stage, "payload": a.payload_digest, "parents": list(a.parents)}
+            )
+            if recomputed != a.artifact_id:
+                return False
+        return True
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "root": self.root if self.artifacts else None,

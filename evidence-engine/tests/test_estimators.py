@@ -1,0 +1,73 @@
+"""AIPW doubly-robustness, cross-estimator concurrence, and bootstrap CI."""
+
+import numpy as np
+import pandas as pd
+
+from evidence_engine.estimator.aipw import estimate_aipw
+from evidence_engine.estimator.concurrence import compare
+from evidence_engine.estimator.iptw import (
+    bootstrap_rr_ci,
+    estimate_outcome,
+    fit_propensity,
+)
+
+
+def _synthetic_confounded(n=2000, seed=0):
+    rng = np.random.default_rng(seed)
+    age = rng.normal(0, 1, n)
+    sev = rng.gamma(2.0, 1.0, n)
+    ps = 1 / (1 + np.exp(-(0.6 * sev + 0.3 * age - 1.0)))
+    a = (rng.random(n) < ps).astype(int)
+    # True log-OR of exposure on outcome ~ 0.4; confounders raise risk too.
+    logit = -2.0 + 0.5 * sev + 0.2 * age + 0.4 * a
+    y = (rng.random(n) < 1 / (1 + np.exp(-logit))).astype(float)
+    df = pd.DataFrame({"x": a, "age": age, "sev": sev})
+    return df, y
+
+
+def test_iptw_and_aipw_recover_positive_direction():
+    df, y = _synthetic_confounded()
+    fit = fit_propensity(df, "x", ["age", "sev"], no_impute=[], trim=(0.02, 0.98), seed=0)
+    keep = fit.keep_mask
+    iptw = estimate_outcome(y[keep], df["x"].to_numpy()[keep], fit.weights)
+    aipw = estimate_aipw(
+        df.loc[keep], "x", ["age", "sev"], y[keep], fit.propensity, no_impute=[], seed=0
+    )
+    assert iptw.status == "ok" and aipw.status == "ok"
+    assert iptw.risk_ratio > 1.0  # planted positive association
+    assert aipw.risk_ratio > 1.0
+
+
+def test_concurrence_flags_agreement_and_disagreement():
+    df, y = _synthetic_confounded()
+    fit = fit_propensity(df, "x", ["age", "sev"], no_impute=[], trim=(0.02, 0.98), seed=0)
+    keep = fit.keep_mask
+    iptw = estimate_outcome(y[keep], df["x"].to_numpy()[keep], fit.weights)
+    aipw = estimate_aipw(
+        df.loc[keep], "x", ["age", "sev"], y[keep], fit.propensity, no_impute=[], seed=0
+    )
+    agree = compare({"iptw": iptw, "aipw": aipw})
+    assert agree.concordant is True
+    assert agree.sign_agree is True
+
+
+def test_concurrence_not_assessable_with_one_estimator():
+    df, y = _synthetic_confounded()
+    fit = fit_propensity(df, "x", ["age", "sev"], no_impute=[], trim=(0.02, 0.98), seed=0)
+    iptw = estimate_outcome(y[fit.keep_mask], df["x"].to_numpy()[fit.keep_mask], fit.weights)
+    from evidence_engine.estimator.iptw import OutcomeEstimate
+
+    bad = OutcomeEstimate("insufficient", "n/a", *(None,) * 7)
+    res = compare({"iptw": iptw, "aipw": bad})
+    assert res.concordant is False
+    assert res.sign_agree is None  # cannot assess
+
+
+def test_bootstrap_ci_is_deterministic_and_excludes_null():
+    df, y = _synthetic_confounded()
+    kw = dict(no_impute=[], trim=(0.02, 0.98), seed=0, n_boot=80)
+    b1 = bootstrap_rr_ci(df, "x", y, ["age", "sev"], **kw)
+    b2 = bootstrap_rr_ci(df, "x", y, ["age", "sev"], **kw)
+    assert b1 == b2  # same seed -> identical
+    assert b1["status"] == "ok"
+    assert b1["ci95_rr"][0] > 1.0  # planted positive effect excludes the null

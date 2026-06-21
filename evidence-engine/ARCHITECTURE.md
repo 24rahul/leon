@@ -26,10 +26,13 @@ src/evidence_engine/
 │   └── builder.py             Eligibility + time-zero enforcement; token-gated outcome access.
 │
 ├── estimator/
-│   ├── iptw.py                Stabilized IPTW; balance (SMD); explicit missingness; single-outcome estimate.
+│   ├── iptw.py                Stabilized IPTW; balance (SMD); explicit missingness; bootstrap CI.
+│   ├── aipw.py                Doubly-robust AIPW with efficient-influence-function SE.
+│   ├── concurrence.py         IPTW-vs-AIPW agreement (sign + interval overlap) → downgrade gate.
 │   ├── calibration.py         Empirical-null calibration from the negative-control panel (Schuemie).
 │   ├── refutation.py          dowhy falsification probes (placebo / random cause / subset).
-│   └── evalue.py              E-value (VanderWeele & Ding), exact, point + CI limit.
+│   ├── evalue.py              E-value (VanderWeele & Ding), exact, point + CI limit.
+│   └── units.py               Scale-safe NewTypes (RiskRatio vs LogRiskRatio), mypy-enforced.
 │
 ├── equity/
 │   └── stratify.py            Per-group estimation → PRESENT / SILENT / ABSENT classification.
@@ -70,5 +73,7 @@ src/evidence_engine/
 | Explicit (never silent) missingness | `tests/test_missingness.py` |
 | E-value closed form | `tests/test_evalue.py` |
 | Empirical-null calibration + fail-loud | `tests/test_calibration.py` |
+| AIPW recovery, concurrence, deterministic bootstrap | `tests/test_estimators.py` |
+| Provenance ledger chaining + tamper detection | `tests/test_provenance.py` |
 | Restricted-data guard, end-to-end, byte-reproducibility | `tests/test_pipeline.py` |
 ```

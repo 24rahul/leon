@@ -248,3 +248,56 @@ def estimate_outcome(
         se_log_rr=round(se, 5),
         ci95_rr=(round(ci[0], 4), round(ci[1], 4)),
     )
+
+
+def bootstrap_rr_ci(
+    df: pd.DataFrame,
+    exposure: str,
+    y_full: np.ndarray,
+    confounders: Sequence[str],
+    *,
+    no_impute: Sequence[str],
+    trim: tuple[float, float],
+    seed: int,
+    n_boot: int,
+) -> dict[str, object]:
+    """Nonparametric bootstrap CI for the IPTW log-RR.
+
+    The propensity model is REFIT inside every resample, so the interval reflects
+    the uncertainty of estimating the weights — which the analytic delta-method
+    interval (computed at the fitted weights) does not. Deterministic given the
+    seed. Returns a fail-loud status if too few resamples are estimable.
+    """
+    rng = np.random.default_rng(seed)
+    n = len(df)
+    logs: list[float] = []
+    for _ in range(n_boot):
+        idx = rng.integers(0, n, n)
+        dfb = df.iloc[idx].reset_index(drop=True)
+        yb = y_full[idx]
+        try:
+            fit = fit_propensity(
+                dfb, exposure, confounders, no_impute=no_impute, trim=trim, seed=seed
+            )
+            keep = fit.keep_mask
+            est = estimate_outcome(yb[keep], dfb[exposure].to_numpy(dtype=int)[keep], fit.weights)
+            if est.status == "ok" and est.log_rr is not None:
+                logs.append(est.log_rr)
+        except Exception:
+            continue
+
+    if len(logs) < max(20, n_boot // 2):
+        return {
+            "status": "insufficient",
+            "reason": f"only {len(logs)}/{n_boot} bootstrap resamples were estimable",
+            "n_success": len(logs),
+        }
+    arr = np.array(logs)
+    lo, hi = np.percentile(arr, [2.5, 97.5])
+    return {
+        "status": "ok",
+        "n_success": len(logs),
+        "se_log_rr": round(float(arr.std(ddof=1)), 5),
+        "ci95_rr": (round(float(np.exp(lo)), 4), round(float(np.exp(hi)), 4)),
+        "method": "nonparametric bootstrap with propensity refit per resample",
+    }

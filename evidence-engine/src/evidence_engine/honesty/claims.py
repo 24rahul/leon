@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import enum
 from dataclasses import dataclass
-from typing import Final
+from typing import Final, assert_never
 
 
 class Stance(enum.Enum):
@@ -91,7 +91,9 @@ class Claim:
                 f"Within {scope}, any association between {x} and {y} requires "
                 f"confirmatory trial; the observational data alone cannot advance it."
             )
-        raise AssertionError(f"Unhandled stance: {self.stance!r}")  # pragma: no cover
+        # Exhaustiveness: if a Stance is ever added without a branch here, mypy
+        # flags this line at type-check time (and it raises at runtime).
+        assert_never(self.stance)
 
     def to_dict(self) -> dict[str, str]:
         return {

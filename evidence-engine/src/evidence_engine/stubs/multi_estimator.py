@@ -1,21 +1,21 @@
-"""STUB — multi-estimator concurrence check (Harm (a): a wrong answer reaching a
-patient).
+"""PARTIALLY IMPLEMENTED — multi-estimator concurrence (Harm (a): a wrong answer
+reaching a patient).
 
 A single estimator is a single set of modelling assumptions. An association that
 appears only under its author's favourite method is far weaker than one that
 survives IPTW, propensity matching, and a doubly-robust outcome model alike.
-Concurrence across estimators with *different* failure modes is real triangulation.
 
-Intended contract (slots in alongside the IPTW path in the pipeline):
-  * Run a panel of estimators sharing the sealed protocol and DAG: IPTW (built),
-    propensity matching, standardization / g-computation, and a doubly-robust
-    (AIPW/TMLE) estimator.
-  * Report agreement in sign, overlap of calibrated intervals, and disagreement
-    diagnostics.
-  * Downgrade the evidence tier when estimators materially disagree; this becomes
-    an additional pessimistic gate in `honesty.evidence_object`.
+WHAT IS BUILT: IPTW (`estimator/iptw.py`) and a doubly-robust AIPW estimator
+(`estimator/aipw.py`) are compared in `estimator/concurrence.py`, and their
+agreement (sign + interval overlap) is a live pessimistic gate in
+`honesty.evidence_object`. That is genuine two-estimator triangulation.
 
-ROADMAP: Phase 2. Not yet implemented.
+WHAT REMAINS (this stub): a *broader* panel sharing the sealed protocol and DAG —
+propensity matching, standardization / g-computation, and TMLE — plus concurrence
+on the *calibrated* intervals. The interface below is the shape the broader panel
+will satisfy.
+
+ROADMAP: Phase 2. Two-estimator concurrence is live; the full panel is not.
 """
 
 from __future__ import annotations

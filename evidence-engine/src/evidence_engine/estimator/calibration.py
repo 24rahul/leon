@@ -31,6 +31,8 @@ from dataclasses import asdict, dataclass
 import numpy as np
 from scipy import optimize, stats
 
+from .units import LogRiskRatio
+
 
 @dataclass(frozen=True)
 class EmpiricalNull:
@@ -107,7 +109,7 @@ def fit_empirical_null(
 
 
 def calibrate(
-    raw_log_rr: float,
+    raw_log_rr: LogRiskRatio,
     raw_se: float,
     null: EmpiricalNull,
 ) -> CalibratedEstimate:

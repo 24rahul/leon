@@ -1,5 +1,5 @@
 {
-  "artifact_root": "f33276758cbb3f497f6ee675e72f0dce82e18dbdfbffa2e07440d0083bdf1f16",
+  "artifact_root": "5077d6a9c3d73dcfc6ccc1012adacf808ac84a5fe20c76ca888f0c392c95aa62",
   "assumptions": [
     {
       "assumption": "Exchangeability (no unmeasured confounding given the specified covariates).",
@@ -33,6 +33,16 @@
     "Measurement/testing rates differ by recorded race; observed values are conditioned on differential ascertainment.",
     "Equity-relevant variables are never silently imputed; missingness is carried as explicit indicator variables."
   ],
+  "bootstrap": {
+    "ci95_rr": [
+      1.2521,
+      1.724
+    ],
+    "method": "nonparametric bootstrap with propensity refit per resample",
+    "n_success": 500,
+    "se_log_rr": 0.08236,
+    "status": "ok"
+  },
   "claim": {
     "exposure": "early_vasopressor",
     "outcome": "mortality_28d",
@@ -150,6 +160,43 @@
     "risk_treated": 0.16509,
     "se_log_rr": 0.08318,
     "status": "ok"
+  },
+  "estimator_concurrence": {
+    "abs_log_rr_gap": 0.02305,
+    "ci_overlap": true,
+    "concordant": true,
+    "estimators": {
+      "aipw": {
+        "ci95_rr": [
+          1.2552,
+          1.7323
+        ],
+        "log_rr": 0.38837,
+        "reason": "",
+        "risk_control": 0.11189,
+        "risk_difference": 0.0531,
+        "risk_ratio": 1.47458,
+        "risk_treated": 0.16499,
+        "se_log_rr": 0.08217,
+        "status": "ok"
+      },
+      "iptw": {
+        "ci95_rr": [
+          1.2242,
+          1.6961
+        ],
+        "log_rr": 0.36532,
+        "reason": "",
+        "risk_control": 0.11457,
+        "risk_difference": 0.05052,
+        "risk_ratio": 1.44098,
+        "risk_treated": 0.16509,
+        "se_log_rr": 0.08318,
+        "status": "ok"
+      }
+    },
+    "note": "iptw vs aipw: concordant (sign_agree=yes, ci_overlap=yes).",
+    "sign_agree": true
   },
   "evidence_tier": "HYPOTHESIS_GENERATING",
   "negative_controls": {
@@ -279,52 +326,68 @@
           "stage": "primary_estimate"
         },
         {
-          "artifact_id": "96f23b938edaf97df5cb61bdd0cd296f930773c09aafc1a9e7d75dccb315c549",
+          "artifact_id": "ca17f7e7ed416b1aa2eebcf730b55ff2cce30747550b57ba775fbddf43f6aa90",
           "parents": [
             "331823d6950cfec0d358c0806171ed80e0d38bad92eeac6ed456c7b59fe486c3"
+          ],
+          "payload_digest": "65fb305b5ef6c42e4a081a2e1e75a046258bd1899e5bbf9ad972a12fd29584b0",
+          "stage": "aipw_concurrence"
+        },
+        {
+          "artifact_id": "998a7c27bd79acf7e33ae511b906f1e8efb35adbf2d55d1910dcbcf478e1fae8",
+          "parents": [
+            "ca17f7e7ed416b1aa2eebcf730b55ff2cce30747550b57ba775fbddf43f6aa90"
+          ],
+          "payload_digest": "db65e9e5adf0ce4857904f99a1e633a609b7131f4bcac98fec299debb0fab266",
+          "stage": "bootstrap"
+        },
+        {
+          "artifact_id": "027ec6f8d55ab7a81648715ef63cd16cce6a6d4be3c2c037586024279a1a7461",
+          "parents": [
+            "998a7c27bd79acf7e33ae511b906f1e8efb35adbf2d55d1910dcbcf478e1fae8"
           ],
           "payload_digest": "720153464f952a238e2e2031e18016a3377ba7965e949f29a7e733d93152b1a0",
           "stage": "calibration"
         },
         {
-          "artifact_id": "ff2d45603bffc33ce7305eb1b82998722d2b31690ad30bc64b18d5a092f358dc",
+          "artifact_id": "12144d11a9359a98380b8b6cb2f58f5e2e59d4dd7623b31e4ae52a352c64e124",
           "parents": [
-            "96f23b938edaf97df5cb61bdd0cd296f930773c09aafc1a9e7d75dccb315c549"
+            "027ec6f8d55ab7a81648715ef63cd16cce6a6d4be3c2c037586024279a1a7461"
           ],
           "payload_digest": "21d7daf8184067330ea17fac4eafd0e88076b3cc1e45dd39c400f1952b58e35d",
           "stage": "evalue"
         },
         {
-          "artifact_id": "67c537d7fdc64323c8aaf00bd013d491daef692c4cb59e07ce0fa3592e95b2e6",
+          "artifact_id": "cc4c2665eb0ba972419b6b342e2883e1f06693ffe9a6e07ae7ff93d2d9fe658b",
           "parents": [
-            "ff2d45603bffc33ce7305eb1b82998722d2b31690ad30bc64b18d5a092f358dc"
+            "12144d11a9359a98380b8b6cb2f58f5e2e59d4dd7623b31e4ae52a352c64e124"
           ],
           "payload_digest": "47f012f67526eceb448a660621b272ffcdb108c4bd692e042d776802989784e3",
           "stage": "refutation"
         },
         {
-          "artifact_id": "191ad4edcd13c5f59d78ca4f38d7fbcdff66ccbcba7249c71ae55a2351d4420c",
+          "artifact_id": "17b587726f325b40f1cc9a8e37e2b3f654ab3145ec0310efa0a8486d062cb0a4",
           "parents": [
-            "67c537d7fdc64323c8aaf00bd013d491daef692c4cb59e07ce0fa3592e95b2e6"
+            "cc4c2665eb0ba972419b6b342e2883e1f06693ffe9a6e07ae7ff93d2d9fe658b"
           ],
           "payload_digest": "decc89d26d367bd40b76bbb7b382e7bbd3992a5c8b57a73041f4cb0e320866e7",
           "stage": "equity"
         },
         {
-          "artifact_id": "f33276758cbb3f497f6ee675e72f0dce82e18dbdfbffa2e07440d0083bdf1f16",
+          "artifact_id": "5077d6a9c3d73dcfc6ccc1012adacf808ac84a5fe20c76ca888f0c392c95aa62",
           "parents": [
-            "191ad4edcd13c5f59d78ca4f38d7fbcdff66ccbcba7249c71ae55a2351d4420c"
+            "17b587726f325b40f1cc9a8e37e2b3f654ab3145ec0310efa0a8486d062cb0a4"
           ],
-          "payload_digest": "2843adea71274f937cfd1ed6fcfd351e5e1f74210f59c52d4aae3ba507f62e8b",
+          "payload_digest": "b7254ecd61410c526155cfe6aa007d6b40a9ac5f167cd7b67d8381d949cfcc18",
           "stage": "evidence_object"
         }
       ],
-      "root": "f33276758cbb3f497f6ee675e72f0dce82e18dbdfbffa2e07440d0083bdf1f16"
+      "root": "5077d6a9c3d73dcfc6ccc1012adacf808ac84a5fe20c76ca888f0c392c95aa62"
     },
     "config_hash": "66dc7a539353ed55d63d0fd81fd2cb3bca8ddfa16d9b649f6528a092135ef700",
     "data_version": "synthetic-surrogate-v1::n=4000::seed=20240617",
     "engine_version": "0.1.0",
-    "git_commit": "8f5bd3a9a589e37ad16ab21fd1758caea25da767",
+    "git_commit": "fcb39f09b18201fd8437d03f4a89a49a44998d81",
     "protocol_hash": "8ad9e3e519274430d7cd08a44fb46fdb8176cddea8f077141158209fca379126",
     "seed": 20240617
   },
@@ -359,6 +422,8 @@
     "balance achieved (max |SMD|=0.012 \u2264 0.1).",
     "CI E-value=1.78 \u2265 1.5 (robust).",
     "placebo refuter near null (no falsification).",
-    "signal present in ['WHITE'] but silent in ['ASIAN', 'BLACK/AFRICAN AMERICAN', 'HISPANIC/LATINO', 'OTHER/UNKNOWN']."
+    "signal present in ['WHITE'] but silent in ['ASIAN', 'BLACK/AFRICAN AMERICAN', 'HISPANIC/LATINO', 'OTHER/UNKNOWN'].",
+    "IPTW and AIPW concur (sign + interval overlap).",
+    "bootstrap CI excludes the null (robust to PS estimation)."
   ]
 }

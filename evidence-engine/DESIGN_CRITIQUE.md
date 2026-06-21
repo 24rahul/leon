@@ -206,10 +206,12 @@ A critique that finds no faults is flattery. The real limitations, ranked:
    bias or a missing confounder nobody named. The DAG-approval gate (stubbed)
    is the intended human check, and its being stubbed is the system's single
    largest current gap.
-3. **A single estimator is a single set of modelling assumptions.** Real
-   defensibility requires the multi-estimator concurrence check (stubbed): an
-   effect that appears under IPTW, matching, and an outcome model alike is far
-   harder to dismiss than one that survives only its author's favourite method.
+3. **Two estimators are better than one, but still not a panel.** IPTW and a
+   doubly-robust AIPW now triangulate (their concurrence is a live gate), which is
+   a real improvement over a single method. But full defensibility wants matching,
+   g-computation, and TMLE too — estimators with genuinely different failure modes
+   — and concurrence on the *calibrated* intervals. That broader panel is still
+   stubbed (`stubs/multi_estimator.py`).
 4. **The demo runs on a synthetic surrogate** when the open MIMIC-IV demo is
    absent (e.g. offline). The surrogate has *planted, known* biases so the
    machinery is demonstrable and reproducible — but a planted bias the author

@@ -84,6 +84,8 @@ class EvidenceObject:
     artifact_root: str
     is_synthetic: bool
     negative_controls: dict[str, Any] = field(default_factory=dict)
+    concurrence: dict[str, Any] = field(default_factory=dict)
+    bootstrap: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -91,6 +93,8 @@ class EvidenceObject:
             "evidence_tier": self.evidence_tier,
             "tier_rationale": self.tier_rationale,
             "estimate": self.estimate.to_dict(),
+            "estimator_concurrence": self.concurrence,
+            "bootstrap": self.bootstrap,
             "propensity_diagnostics": self.propensity_diagnostics,
             "empirical_calibration": self.calibration.to_dict(),
             "e_value": self.evalue.to_dict(),
@@ -119,6 +123,8 @@ def _decide_tier(
     evalue: EValue,
     placebo_alarmed: bool,
     equity: dict[str, Any],
+    concurrence: dict[str, Any],
+    bootstrap: dict[str, Any],
 ) -> tuple[Stance, list[str]]:
     rationale: list[str] = []
 
@@ -189,6 +195,30 @@ def _decide_tier(
     if absent:
         rationale.append(f"NOTE: evidence absent (not null) for {absent}.")
 
+    # Gate 6 — cross-estimator concurrence (IPTW vs doubly-robust AIPW).
+    if concurrence.get("concordant"):
+        gates.append(Stance.REQUIRES_CONFIRMATORY_TRIAL)
+        rationale.append("IPTW and AIPW concur (sign + interval overlap).")
+    elif concurrence.get("sign_agree") is not None:
+        gates.append(Stance.CONSISTENT_WITH)
+        rationale.append("IPTW and AIPW DISCORD → capped at 'consistent with'.")
+    else:
+        gates.append(Stance.HYPOTHESIS_GENERATING)
+        rationale.append("concurrence not assessable (an estimator was insufficient).")
+
+    # Gate 7 — bootstrap robustness (interval that accounts for PS-estimation).
+    if bootstrap.get("status") == "ok" and bootstrap.get("ci95_rr"):
+        blo, bhi = bootstrap["ci95_rr"]
+        if blo <= 1.0 <= bhi:
+            gates.append(Stance.CONSISTENT_WITH)
+            rationale.append("bootstrap CI contains the null → capped at 'consistent with'.")
+        else:
+            gates.append(Stance.REQUIRES_CONFIRMATORY_TRIAL)
+            rationale.append("bootstrap CI excludes the null (robust to PS estimation).")
+    else:
+        gates.append(Stance.HYPOTHESIS_GENERATING)
+        rationale.append("bootstrap underpowered/insufficient → mild cap.")
+
     return weakest(*gates), rationale
 
 
@@ -209,9 +239,12 @@ def build_evidence_object(
     artifact_root: str,
     is_synthetic: bool,
     negative_controls: dict[str, Any],
+    concurrence: dict[str, Any],
+    bootstrap: dict[str, Any],
 ) -> EvidenceObject:
     stance, rationale = _decide_tier(
-        estimate, propensity, calibration, evalue, placebo_alarmed, equity
+        estimate, propensity, calibration, evalue, placebo_alarmed, equity,
+        concurrence, bootstrap,
     )
     claim = Claim(stance=stance, exposure=exposure, outcome=outcome, scope=scope)
     return EvidenceObject(
@@ -230,4 +263,6 @@ def build_evidence_object(
         artifact_root=artifact_root,
         is_synthetic=is_synthetic,
         negative_controls=negative_controls,
+        concurrence=concurrence,
+        bootstrap=bootstrap,
     )

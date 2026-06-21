@@ -123,24 +123,30 @@ placed in this table, it does not belong here.
   are unreadable until the protocol is sealed (`protocol/schema.py`).
 - Cohort construction with **time-zero enforcement** (immortal-time bias excluded
   by construction).
-- One estimator end-to-end: **stabilized IPTW** with covariate-balance (SMD)
-  diagnostics and explicit missingness handling.
+- Two estimators end-to-end: **stabilized IPTW** (with covariate-balance SMD
+  diagnostics, explicit missingness handling, and a **propensity-aware bootstrap
+  CI**) plus a **doubly-robust AIPW** estimator with an efficient-influence-function
+  standard error.
+- **Cross-estimator concurrence** (IPTW vs AIPW) wired as a live downgrade gate —
+  genuine two-method triangulation (the broader panel is still stubbed).
 - **Negative-control empirical-null calibration** (Schuemie et al.) over a control
   panel — not merely a refutation test (see `DESIGN_CRITIQUE.md` §1.3).
 - **dowhy refuters** as falsification probes (placebo, random common cause,
   subset).
 - **E-value** (VanderWeele & Ding), exact closed form, for the estimate and the
-  CI limit.
+  CI limit. Risk-ratio vs log scales are kept apart by `NewType`s the type checker
+  enforces.
 - **Equity-stratified** estimation classifying each group as evidence
   PRESENT / SILENT / ABSENT.
-- A guarded **evidence object**, content-addressed **provenance ledger**, and
-  **byte-reproducible** output.
+- A guarded **evidence object**, a content-addressed **provenance ledger** with an
+  executable `verify()` (tamper-evident chaining), and **byte-reproducible** output.
 
 **Stubbed (interfaces defined, `NotImplementedError`, listed in
 [`ROADMAP.md`](ROADMAP.md)) — these are NOT complete:**
 
 - Human DAG-approval gate (`stubs/dag_gate.py`)
-- Multi-estimator concurrence check (`stubs/multi_estimator.py`)
+- Multi-estimator concurrence — **partially built**: IPTW-vs-AIPW is live;
+  matching / g-computation / TMLE remain stubbed (`stubs/multi_estimator.py`)
 - RCT-benchmark harness (`stubs/rct_benchmark.py`)
 - Cross-dataset replication (`stubs/replication.py`)
 
