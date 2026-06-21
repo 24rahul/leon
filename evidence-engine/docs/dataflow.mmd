@@ -1,0 +1,65 @@
+%%{init: {'theme':'base','themeVariables':{'fontSize':'15px','fontFamily':'ui-sans-serif, system-ui, sans-serif'}}}%%
+flowchart TB
+    classDef gate fill:#fde2e2,stroke:#c0392b,stroke-width:2px,color:#7b1f1f;
+    classDef cap fill:#e7f0ff,stroke:#2b6cb0,stroke-width:2px,color:#1a3a5e;
+    classDef stub fill:#f3f0e7,stroke:#a98b3a,stroke-width:1px,stroke-dasharray:5 4,color:#6b5618;
+    classDef stage fill:#eafaf0,stroke:#27795b,stroke-width:1px,color:#13402f;
+    classDef out fill:#efe7fb,stroke:#6b46c1,stroke-width:2px,color:#3a206b;
+    classDef data fill:#f5f7fa,stroke:#5a6470,color:#2b3138;
+
+    CFG["config.yaml<br/><i>single source of truth → config hash</i>"]:::data
+
+    subgraph TRUST["Trust boundary — enforced by construction, not by comment"]
+      direction TB
+      DL["Data loader<br/><b>GUARD:</b> refuses non-demo / credentialed paths<br/>else deterministic synthetic surrogate"]:::gate
+      P0["Phase-0 audit (runs FIRST, unconditionally)<br/>occult-hypoxemia + missingness → caveats"]:::gate
+      SEAL["Protocol.seal()<br/>commits SHA-256 pre-registration hash"]:::cap
+      TOK(["OutcomeAccessToken<br/><i>unforgeable capability</i>"]):::cap
+      DAG["DAG-approval gate<br/>(human sign-off on causal structure)"]:::stub
+    end
+
+    subgraph EST["Estimation — every Y read is token-gated"]
+      direction TB
+      COH["Cohort build<br/>time-zero fixed ⇒ no immortal-time bias"]:::stage
+      PS["Propensity fit ONCE<br/>SMD balance · explicit missingness · trim"]:::stage
+      IPTW["IPTW estimate<br/>+ propensity-aware bootstrap CI"]:::stage
+      AIPW["Doubly-robust AIPW<br/>efficient-influence SE"]:::stage
+      CONC{{"Concurrence gate<br/>IPTW vs AIPW: sign + CI overlap"}}:::gate
+      NC["Negative-control panel →<br/>empirical-null calibration (Schuemie)"]:::stage
+      EVAL["E-value on the CALIBRATED estimate<br/>(RiskRatio vs LogRiskRatio: mypy-enforced)"]:::stage
+      REF["dowhy refuters<br/>placebo · random cause · subset"]:::stage
+      EQ{{"Equity gate<br/>signal silent in a subgroup ⇒ downgrade"}}:::gate
+    end
+
+    subgraph HON["Honesty layer"]
+      direction TB
+      TIER["Tier decision = weakest of all gates<br/>(pessimistic aggregation)"]:::gate
+      VOCAB["Controlled-vocabulary guard<br/>rejects overclaiming language"]:::gate
+      EVO["Evidence object<br/>claim · tier · rationale · diagnostics"]:::out
+    end
+
+    LEDGER[("Provenance ledger<br/>content-addressed · hash-chained<br/>verify() = tamper-evident · byte-reproducible")]:::out
+
+    CFG --> DL --> P0 --> SEAL
+    SEAL --> TOK
+    SEAL -.->|"Phase-2: must approve<br/>before estimation"| DAG
+    SEAL --> COH --> PS --> IPTW --> AIPW --> CONC
+    TOK -.->|authorizes every<br/>outcome read| COH
+    CONC --> NC --> EVAL --> REF --> EQ
+    EQ --> TIER --> VOCAB --> EVO
+    EVO --> LEDGER
+
+    P0 -. caveats .-> EVO
+    NC -. calibrated CI .-> TIER
+    EVAL -. E-value .-> TIER
+    REF -. falsification .-> TIER
+    CONC -. agreement .-> TIER
+    EQ -. subgroup silence .-> TIER
+
+    LEG["legend"]:::data
+    L1["■ gate / guard (can only downgrade)"]:::gate
+    L2["■ unforgeable capability"]:::cap
+    L3["■ analysis stage"]:::stage
+    L4["▨ stubbed (Phase-2)"]:::stub
+    L5["■ output artifact"]:::out
+    LEG --- L1 --- L2 --- L3 --- L4 --- L5

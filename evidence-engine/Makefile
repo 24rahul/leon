@@ -4,7 +4,7 @@
 PY := .venv/bin/python
 PIP := .venv/bin/pip
 
-.PHONY: help setup run test typecheck reproduce clean
+.PHONY: help setup run test typecheck reproduce diagram clean
 
 help:
 	@echo "make setup      - create venv and install pinned dependencies"
@@ -12,6 +12,7 @@ help:
 	@echo "make test       - run the test suite (pytest)"
 	@echo "make typecheck  - run mypy over the package"
 	@echo "make reproduce  - run twice and assert byte-identical evidence output"
+	@echo "make diagram    - render docs/dataflow.mmd to docs/dataflow.png (needs npx)"
 	@echo "make clean      - remove generated outputs and caches"
 
 setup:
@@ -36,6 +37,11 @@ reproduce:
 	@diff -q outputs/_run1.json outputs/evidence_object.json \
 		&& echo "REPRODUCIBLE: byte-identical across runs" \
 		|| (echo "NOT REPRODUCIBLE" && exit 1)
+
+diagram:
+	@printf '{"args":["--no-sandbox","--disable-setuid-sandbox"]}' > /tmp/pptr.json
+	npx -y @mermaid-js/mermaid-cli -i docs/dataflow.mmd -o docs/dataflow.png \
+		-b white -s 2 -p /tmp/pptr.json
 
 clean:
 	rm -rf outputs/*.json outputs/_run*.json .pytest_cache **/__pycache__

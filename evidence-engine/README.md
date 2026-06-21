@@ -16,6 +16,32 @@ is honest about what remains weak.
 
 ---
 
+## How it actually works
+
+![Evidence Engine dataflow](docs/dataflow.png)
+
+Read it top to bottom. Three things are doing the real work:
+
+1. **The trust boundary is enforced by construction, not by convention.** The data
+   loader *refuses* a credentialed path; the Phase-0 audit runs *first,
+   unconditionally*; and no outcome column `Y` can be read without an
+   `OutcomeAccessToken` — a capability that can only be minted by *sealing* the
+   protocol (committing its pre-registration hash). Peeking at outcomes therefore
+   requires having already frozen the analysis. (The human DAG-approval gate is the
+   one trust step still stubbed for Phase 2.)
+2. **Gates can only ever downgrade.** Concurrence (IPTW vs doubly-robust AIPW),
+   empirical calibration, the E-value, the refuters, and the equity check all feed
+   a single tier decision that takes the *weakest* verdict. No stage can promote a
+   claim.
+3. **Every stage is hash-chained.** Each box appends a content-addressed artifact;
+   the final Merkle root commits to the whole computation, `verify()` makes
+   tampering detectable, and the output is byte-reproducible.
+
+Source: [`docs/dataflow.mmd`](docs/dataflow.mmd) (Mermaid). Regenerate with
+`make diagram`.
+
+---
+
 ## What this is (and is not)
 
 - It **is** a runnable Phase-0 data-bias audit plus a Phase-1 target-trial
