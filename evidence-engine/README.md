@@ -12,7 +12,8 @@ single, uncompromising idea:
 
 If you read nothing else, read [`DESIGN_CRITIQUE.md`](DESIGN_CRITIQUE.md): it is
 the adversarial first-principles evaluation that drove every decision here, and it
-is honest about what remains weak.
+is honest about what remains weak. For a non-technical overview, see
+[`docs/PLAIN_LANGUAGE.md`](docs/PLAIN_LANGUAGE.md).
 
 ---
 
